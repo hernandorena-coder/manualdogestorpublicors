@@ -1,0 +1,1044 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Painel de Edição — Manual do Gestor CAGE RS</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0f1117;
+    --surface: #1a1d27;
+    --surface2: #22263a;
+    --border: #2e3348;
+    --accent: #4f7cff;
+    --accent2: #7c5cfc;
+    --green: #22c55e;
+    --yellow: #f59e0b;
+    --red: #ef4444;
+    --text: #e8eaf0;
+    --text2: #8b91a8;
+    --text3: #5a6080;
+    --radius: 10px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Sora', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+
+  /* ── Login ── */
+  #login-screen {
+    display: flex; align-items: center; justify-content: center;
+    min-height: 100vh;
+    background: radial-gradient(ellipse at 60% 40%, #1a2040 0%, #0f1117 70%);
+  }
+  .login-box {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 16px; padding: 48px 40px; width: 380px;
+    box-shadow: 0 24px 64px rgba(0,0,0,0.5);
+  }
+  .login-logo { text-align: center; margin-bottom: 32px; }
+  .login-logo .sigla { font-size: 13px; font-weight: 600; color: var(--accent); letter-spacing: 3px; text-transform: uppercase; }
+  .login-logo h1 { font-size: 20px; font-weight: 700; color: var(--text); margin-top: 6px; }
+  .login-logo p { font-size: 13px; color: var(--text2); margin-top: 4px; }
+  .login-field { margin-bottom: 16px; }
+  .login-field label { display: block; font-size: 12px; font-weight: 600; color: var(--text2); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 1px; }
+  .login-field input {
+    width: 100%; padding: 12px 14px; background: var(--bg);
+    border: 1px solid var(--border); border-radius: var(--radius);
+    color: var(--text); font-family: 'Sora', sans-serif; font-size: 14px;
+    transition: border-color .2s;
+  }
+  .login-field input:focus { outline: none; border-color: var(--accent); }
+  .login-btn {
+    width: 100%; padding: 13px; margin-top: 8px;
+    background: var(--accent); border: none; border-radius: var(--radius);
+    color: #fff; font-family: 'Sora', sans-serif; font-size: 14px;
+    font-weight: 600; cursor: pointer; transition: opacity .2s;
+  }
+  .login-btn:hover { opacity: .85; }
+  .login-err { color: var(--red); font-size: 13px; text-align: center; margin-top: 12px; display: none; }
+
+  /* ── App Layout ── */
+  #app { display: none; height: 100vh; overflow: hidden; }
+  .layout { display: flex; height: 100vh; }
+
+  /* ── Sidebar ── */
+  .sidebar {
+    width: 280px; flex-shrink: 0;
+    background: var(--surface); border-right: 1px solid var(--border);
+    display: flex; flex-direction: column; overflow: hidden;
+  }
+  .sidebar-header {
+    padding: 20px; border-bottom: 1px solid var(--border);
+    flex-shrink: 0;
+  }
+  .sidebar-header .sigla { font-size: 11px; font-weight: 600; color: var(--accent); letter-spacing: 2px; }
+  .sidebar-header h2 { font-size: 14px; font-weight: 700; color: var(--text); margin-top: 2px; }
+  .sidebar-search {
+    padding: 12px 16px; border-bottom: 1px solid var(--border); flex-shrink: 0;
+  }
+  .sidebar-search input {
+    width: 100%; padding: 8px 10px; background: var(--bg);
+    border: 1px solid var(--border); border-radius: 6px;
+    color: var(--text); font-family: 'Sora', sans-serif; font-size: 12px;
+  }
+  .sidebar-search input:focus { outline: none; border-color: var(--accent); }
+  .sidebar-nav { overflow-y: auto; flex: 1; padding: 8px 0; }
+  .nav-section { padding: 8px 16px 4px; font-size: 10px; font-weight: 600; color: var(--text3); text-transform: uppercase; letter-spacing: 1.5px; }
+  .nav-item {
+    display: flex; align-items: center; gap: 8px;
+    padding: 9px 16px; cursor: pointer; font-size: 13px; color: var(--text2);
+    transition: background .15s, color .15s; border-left: 3px solid transparent;
+  }
+  .nav-item:hover { background: var(--surface2); color: var(--text); }
+  .nav-item.active { background: rgba(79,124,255,.1); color: var(--accent); border-left-color: var(--accent); font-weight: 600; }
+  .nav-item .num { font-size: 10px; color: var(--text3); font-family: 'JetBrains Mono', monospace; min-width: 20px; }
+  .sidebar-footer {
+    padding: 14px 16px; border-top: 1px solid var(--border); flex-shrink: 0;
+  }
+  .logout-btn {
+    width: 100%; padding: 8px; background: transparent;
+    border: 1px solid var(--border); border-radius: 6px;
+    color: var(--text2); font-family: 'Sora', sans-serif; font-size: 12px;
+    cursor: pointer; transition: all .2s;
+  }
+  .logout-btn:hover { border-color: var(--red); color: var(--red); }
+
+  /* ── Main Content ── */
+  .main { flex: 1; overflow-y: auto; display: flex; flex-direction: column; }
+  .main-header {
+    padding: 24px 32px; border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: space-between;
+    background: var(--surface); flex-shrink: 0; position: sticky; top: 0; z-index: 10;
+  }
+  .main-header h3 { font-size: 16px; font-weight: 700; color: var(--text); }
+  .main-header p { font-size: 12px; color: var(--text2); margin-top: 2px; }
+  .header-actions { display: flex; gap: 8px; }
+  .btn {
+    padding: 9px 18px; border-radius: 8px; font-family: 'Sora', sans-serif;
+    font-size: 13px; font-weight: 600; cursor: pointer; border: none; transition: all .2s;
+  }
+  .btn-primary { background: var(--accent); color: #fff; }
+  .btn-primary:hover { opacity: .85; }
+  .btn-success { background: var(--green); color: #fff; }
+  .btn-success:hover { opacity: .85; }
+  .btn-ghost { background: transparent; border: 1px solid var(--border); color: var(--text2); }
+  .btn-ghost:hover { border-color: var(--text2); color: var(--text); }
+  .btn-danger { background: transparent; border: 1px solid var(--border); color: var(--red); }
+  .btn-danger:hover { border-color: var(--red); background: rgba(239,68,68,.1); }
+
+  .main-body { padding: 32px; flex: 1; }
+
+  /* ── Dashboard ── */
+  .dashboard-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 32px; }
+  .stat-card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 20px;
+  }
+  .stat-card .num { font-size: 32px; font-weight: 700; color: var(--accent); font-family: 'JetBrains Mono', monospace; }
+  .stat-card .label { font-size: 12px; color: var(--text2); margin-top: 4px; }
+  .section-title { font-size: 14px; font-weight: 600; color: var(--text); margin-bottom: 16px; }
+  .recent-list { display: flex; flex-direction: column; gap: 8px; }
+  .recent-item {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 14px 16px;
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  .recent-item .ri-tema { font-size: 13px; font-weight: 600; color: var(--text); }
+  .recent-item .ri-data { font-size: 11px; color: var(--text2); }
+  .recent-item .ri-texto { font-size: 12px; color: var(--text2); margin-top: 2px; }
+  .tag { display: inline-block; padding: 2px 8px; border-radius: 20px; font-size: 10px; font-weight: 600; }
+  .tag-blue { background: rgba(79,124,255,.15); color: var(--accent); }
+  .tag-green { background: rgba(34,197,94,.15); color: var(--green); }
+  .tag-yellow { background: rgba(245,158,11,.15); color: var(--yellow); }
+
+  /* ── Editor de Tema ── */
+  .editor-section {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius); margin-bottom: 20px; overflow: hidden;
+  }
+  .editor-section-header {
+    padding: 14px 20px; background: var(--surface2);
+    border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: space-between;
+    cursor: pointer; user-select: none;
+  }
+  .editor-section-header h4 { font-size: 13px; font-weight: 600; color: var(--text); }
+  .editor-section-header .toggle { font-size: 16px; color: var(--text3); transition: transform .2s; }
+  .editor-section-header.collapsed .toggle { transform: rotate(-90deg); }
+  .editor-section-body { padding: 20px; }
+  .editor-section-body.hidden { display: none; }
+
+  .field-group { margin-bottom: 20px; }
+  .field-label { font-size: 11px; font-weight: 600; color: var(--text2); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px; display: flex; align-items: center; gap: 6px; }
+  .field-label .badge { font-size: 9px; padding: 1px 6px; border-radius: 4px; background: rgba(79,124,255,.2); color: var(--accent); font-weight: 600; letter-spacing: 0; text-transform: none; }
+  .field-input {
+    width: 100%; padding: 10px 12px; background: var(--bg);
+    border: 1px solid var(--border); border-radius: 8px;
+    color: var(--text); font-family: 'Sora', sans-serif; font-size: 13px;
+    transition: border-color .2s; resize: vertical;
+  }
+  .field-input:focus { outline: none; border-color: var(--accent); }
+  textarea.field-input { min-height: 80px; line-height: 1.6; }
+  .field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .field-row-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
+
+  /* Bloco de seção */
+  .secao-block {
+    background: var(--bg); border: 1px solid var(--border);
+    border-radius: 8px; margin-bottom: 12px; overflow: hidden;
+  }
+  .secao-header {
+    padding: 12px 16px; display: flex; align-items: center; gap: 10px;
+    border-bottom: 1px solid var(--border); background: var(--surface2);
+  }
+  .secao-header input {
+    flex: 1; background: transparent; border: none; color: var(--text);
+    font-family: 'Sora', sans-serif; font-size: 13px; font-weight: 600;
+  }
+  .secao-header input:focus { outline: none; }
+  .secao-body { padding: 12px 16px; }
+  .secao-drag { color: var(--text3); cursor: grab; font-size: 14px; }
+
+  /* Blocos de conteúdo */
+  .bloco {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 6px; margin-bottom: 8px; overflow: hidden;
+  }
+  .bloco-header {
+    padding: 8px 12px; display: flex; align-items: center; gap: 8px;
+    background: var(--surface2); border-bottom: 1px solid var(--border);
+  }
+  .bloco-tipo {
+    font-size: 10px; font-weight: 700; padding: 2px 7px; border-radius: 4px;
+    text-transform: uppercase; letter-spacing: .5px;
+  }
+  .tipo-texto { background: rgba(139,145,168,.15); color: var(--text2); }
+  .tipo-info { background: rgba(79,124,255,.2); color: var(--accent); }
+  .tipo-atencao { background: rgba(245,158,11,.2); color: var(--yellow); }
+  .tipo-lista { background: rgba(34,197,94,.2); color: var(--green); }
+  .tipo-tabela { background: rgba(124,92,252,.2); color: var(--accent2); }
+  .tipo-subtitulo { background: rgba(139,145,168,.1); color: var(--text3); }
+  .bloco-actions { margin-left: auto; display: flex; gap: 4px; }
+  .bloco-actions button {
+    padding: 3px 8px; border-radius: 4px; border: none; cursor: pointer;
+    font-size: 11px; font-family: 'Sora', sans-serif;
+    background: transparent; color: var(--text3); transition: all .15s;
+  }
+  .bloco-actions button:hover { background: var(--border); color: var(--text); }
+  .bloco-actions .del:hover { background: rgba(239,68,68,.15); color: var(--red); }
+  .bloco-body { padding: 10px 12px; }
+  .bloco-body textarea, .bloco-body input {
+    width: 100%; padding: 8px 10px; background: var(--bg);
+    border: 1px solid var(--border); border-radius: 6px;
+    color: var(--text); font-family: 'Sora', sans-serif; font-size: 12px;
+    resize: vertical; transition: border-color .2s;
+  }
+  .bloco-body textarea:focus, .bloco-body input:focus { outline: none; border-color: var(--accent); }
+  .bloco-body textarea { min-height: 70px; line-height: 1.6; }
+  .bloco-sublabel { font-size: 10px; color: var(--text3); margin-bottom: 4px; margin-top: 8px; }
+
+  /* Lista editor */
+  .lista-item { display: flex; gap: 6px; margin-bottom: 6px; align-items: flex-start; }
+  .lista-item textarea { flex: 1; min-height: 40px; }
+  .lista-item button { padding: 6px 8px; border-radius: 4px; border: none; background: transparent; color: var(--red); cursor: pointer; font-size: 14px; flex-shrink: 0; margin-top: 0; }
+  .lista-item button:hover { background: rgba(239,68,68,.1); }
+  .add-item-btn {
+    width: 100%; padding: 7px; border: 1px dashed var(--border); border-radius: 6px;
+    background: transparent; color: var(--text3); font-family: 'Sora', sans-serif;
+    font-size: 12px; cursor: pointer; transition: all .2s; margin-top: 4px;
+  }
+  .add-item-btn:hover { border-color: var(--accent); color: var(--accent); }
+
+  /* Tabela editor */
+  .tabela-editor { overflow-x: auto; }
+  .tabela-editor table { border-collapse: collapse; width: 100%; }
+  .tabela-editor th, .tabela-editor td { padding: 4px; }
+  .tabela-editor input {
+    width: 100%; padding: 6px 8px; background: var(--bg);
+    border: 1px solid var(--border); border-radius: 4px;
+    color: var(--text); font-size: 11px; font-family: 'Sora', sans-serif;
+  }
+  .tabela-editor th input { font-weight: 600; background: var(--surface2); }
+  .add-row-btn {
+    width: 100%; padding: 6px; border: 1px dashed var(--border); border-radius: 6px;
+    background: transparent; color: var(--text3); font-family: 'Sora', sans-serif;
+    font-size: 11px; cursor: pointer; transition: all .2s; margin-top: 6px;
+  }
+  .add-row-btn:hover { border-color: var(--green); color: var(--green); }
+
+  .add-bloco-menu { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 8px; }
+  .add-bloco-btn {
+    padding: 5px 10px; border-radius: 6px; border: 1px solid var(--border);
+    background: transparent; color: var(--text2); font-family: 'Sora', sans-serif;
+    font-size: 11px; cursor: pointer; transition: all .2s;
+  }
+  .add-bloco-btn:hover { border-color: var(--accent); color: var(--accent); background: rgba(79,124,255,.05); }
+
+  .add-secao-btn {
+    width: 100%; padding: 10px; border: 1px dashed var(--border); border-radius: 8px;
+    background: transparent; color: var(--text3); font-family: 'Sora', sans-serif;
+    font-size: 13px; cursor: pointer; transition: all .2s; margin-bottom: 20px;
+  }
+  .add-secao-btn:hover { border-color: var(--accent); color: var(--accent); }
+
+  /* Legislação */
+  .leg-item {
+    background: var(--bg); border: 1px solid var(--border);
+    border-radius: 6px; padding: 10px 12px; margin-bottom: 8px;
+  }
+
+  /* Atualizações e FAQ */
+  .atu-item, .faq-item {
+    background: var(--bg); border: 1px solid var(--border);
+    border-radius: 8px; padding: 14px; margin-bottom: 10px;
+  }
+
+  /* Toast */
+  #toast {
+    position: fixed; bottom: 24px; right: 24px;
+    background: var(--green); color: #fff;
+    padding: 12px 20px; border-radius: 8px; font-size: 13px; font-weight: 600;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+    transform: translateY(100px); opacity: 0;
+    transition: all .3s; z-index: 1000;
+  }
+  #toast.show { transform: translateY(0); opacity: 1; }
+
+  /* Download banner */
+  .download-bar {
+    background: rgba(79,124,255,.1); border: 1px solid rgba(79,124,255,.3);
+    border-radius: var(--radius); padding: 14px 20px;
+    display: none; align-items: center; justify-content: space-between;
+    margin-bottom: 20px; gap: 12px;
+  }
+  .download-bar.show { display: flex; }
+  .download-bar p { font-size: 13px; color: var(--text); }
+  .download-bar p span { color: var(--accent); font-weight: 600; }
+
+  /* Scrollbar */
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+  ::-webkit-scrollbar-thumb:hover { background: var(--text3); }
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="login-screen">
+  <div class="login-box">
+    <div class="login-logo">
+      <div class="sigla">CAGE RS</div>
+      <h1>Painel de Edição</h1>
+      <p>Manual do Gestor Público — 6ª Edição</p>
+    </div>
+    <div class="login-field">
+      <label>Usuário</label>
+      <input type="text" id="login-user" placeholder="usuário" autocomplete="username">
+    </div>
+    <div class="login-field">
+      <label>Senha</label>
+      <input type="password" id="login-pass" placeholder="••••••••" autocomplete="current-password">
+    </div>
+    <button class="login-btn" onclick="doLogin()">Entrar</button>
+    <div class="login-err" id="login-err">Usuário ou senha incorretos.</div>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="app">
+  <div class="layout">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <div class="sigla">CAGE RS</div>
+        <h2>Painel de Edição</h2>
+      </div>
+      <div class="sidebar-search">
+        <input type="text" id="sidebar-search" placeholder="Buscar tema..." oninput="filtrarNav(this.value)">
+      </div>
+      <nav class="sidebar-nav" id="sidebar-nav">
+        <div class="nav-section">Geral</div>
+        <div class="nav-item" onclick="showSection('dashboard')">
+          <span>📊</span><span>Dashboard</span>
+        </div>
+        <div class="nav-item" onclick="showSection('site-config')">
+          <span>⚙️</span><span>Configurações do Site</span>
+        </div>
+        <div class="nav-item" onclick="showSection('atualizacoes')">
+          <span>📡</span><span>Atualizações Recentes</span>
+        </div>
+        <div class="nav-item" onclick="showSection('faq')">
+          <span>❓</span><span>Perguntas Frequentes</span>
+        </div>
+        <div class="nav-section" style="margin-top:8px">Temas</div>
+        <div id="temas-nav"></div>
+      </nav>
+      <div class="sidebar-footer">
+        <button class="logout-btn" onclick="doLogout()">Sair</button>
+      </div>
+    </aside>
+
+    <!-- Main -->
+    <main class="main">
+      <div class="main-header" id="main-header">
+        <div>
+          <h3 id="main-title">Dashboard</h3>
+          <p id="main-subtitle">Visão geral do manual</p>
+        </div>
+        <div class="header-actions" id="header-actions"></div>
+      </div>
+      <div class="main-body" id="main-body">
+        <!-- conteúdo dinâmico -->
+      </div>
+    </main>
+  </div>
+</div>
+
+<div id="toast">✓ Alterações salvas</div>
+
+<script>
+// ── CREDENCIAIS ───────────────────────────────────────────────────
+const USUARIOS = {
+  'cage': 'gestor2026',
+  'admin': 'cage@rs2026'
+};
+
+// ── DADOS ─────────────────────────────────────────────────────────
+let DATA = null;
+let secaoAtual = 'dashboard';
+let temaAtual = null;
+
+// ── LOGIN ──────────────────────────────────────────────────────────
+function doLogin() {
+  const u = document.getElementById('login-user').value.trim();
+  const p = document.getElementById('login-pass').value;
+  if (USUARIOS[u] && USUARIOS[u] === p) {
+    document.getElementById('login-screen').style.display = 'none';
+    document.getElementById('app').style.display = 'block';
+    carregarDados();
+  } else {
+    document.getElementById('login-err').style.display = 'block';
+  }
+}
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'Enter' && document.getElementById('login-screen').style.display !== 'none') doLogin();
+});
+
+function doLogout() {
+  DATA = null;
+  document.getElementById('login-screen').style.display = 'flex';
+  document.getElementById('app').style.display = 'none';
+  document.getElementById('login-user').value = '';
+  document.getElementById('login-pass').value = '';
+}
+
+// ── CARREGAR DADOS ─────────────────────────────────────────────────
+async function carregarDados() {
+  try {
+    const res = await fetch('conteudo.json');
+    DATA = await res.json();
+    montarNav();
+    showSection('dashboard');
+  } catch(e) {
+    alert('Erro ao carregar conteudo.json. Verifique se está na mesma pasta.');
+  }
+}
+
+// ── NAV ────────────────────────────────────────────────────────────
+function montarNav() {
+  const nav = document.getElementById('temas-nav');
+  nav.innerHTML = DATA.temas.map(t => `
+    <div class="nav-item" id="nav-${t.id}" onclick="editarTema('${t.id}')">
+      <span class="num">${String(t.num).padStart(2,'0')}</span>
+      <span>${t.nome}</span>
+    </div>
+  `).join('');
+}
+
+function filtrarNav(txt) {
+  document.querySelectorAll('#temas-nav .nav-item').forEach(el => {
+    el.style.display = el.textContent.toLowerCase().includes(txt.toLowerCase()) ? '' : 'none';
+  });
+}
+
+function setActive(id) {
+  document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+  if (id) document.getElementById(id)?.classList.add('active');
+}
+
+// ── SEÇÕES ─────────────────────────────────────────────────────────
+function showSection(nome) {
+  secaoAtual = nome;
+  temaAtual = null;
+  const body = document.getElementById('main-body');
+  const title = document.getElementById('main-title');
+  const sub = document.getElementById('main-subtitle');
+  const actions = document.getElementById('header-actions');
+  actions.innerHTML = '';
+
+  if (nome === 'dashboard') {
+    setActive(null);
+    title.textContent = 'Dashboard';
+    sub.textContent = 'Visão geral do manual';
+    body.innerHTML = renderDashboard();
+  } else if (nome === 'site-config') {
+    setActive(null);
+    title.textContent = 'Configurações do Site';
+    sub.textContent = 'Editar informações gerais';
+    body.innerHTML = renderSiteConfig();
+    actions.innerHTML = `<button class="btn btn-success" onclick="salvarSiteConfig()">Salvar alterações</button>`;
+  } else if (nome === 'atualizacoes') {
+    setActive(null);
+    title.textContent = 'Atualizações Recentes';
+    sub.textContent = 'Novidades exibidas na home';
+    body.innerHTML = renderAtualizacoes();
+    actions.innerHTML = `<button class="btn btn-primary" onclick="addAtualizacao()">+ Adicionar</button>
+                         <button class="btn btn-success" onclick="salvarAtualizacoes()">Salvar</button>`;
+  } else if (nome === 'faq') {
+    setActive(null);
+    title.textContent = 'Perguntas Frequentes';
+    sub.textContent = 'FAQ exibido na home';
+    body.innerHTML = renderFaq();
+    actions.innerHTML = `<button class="btn btn-primary" onclick="addFaq()">+ Adicionar</button>
+                         <button class="btn btn-success" onclick="salvarFaq()">Salvar</button>`;
+  }
+}
+
+// ── DASHBOARD ──────────────────────────────────────────────────────
+function renderDashboard() {
+  const totalBlocos = DATA.temas.reduce((acc, t) => acc + t.secoes.reduce((a2, s) => a2 + s.conteudo.length, 0), 0);
+  const totalSecoes = DATA.temas.reduce((acc, t) => acc + t.secoes.length, 0);
+  return `
+    <div class="dashboard-grid">
+      <div class="stat-card"><div class="num">${DATA.temas.length}</div><div class="label">Temas no manual</div></div>
+      <div class="stat-card"><div class="num">${totalSecoes}</div><div class="label">Seções no total</div></div>
+      <div class="stat-card"><div class="num">${totalBlocos}</div><div class="label">Blocos de conteúdo</div></div>
+    </div>
+    <div class="section-title">Últimas atualizações registradas</div>
+    <div class="recent-list">
+      ${DATA.atualizacoes.map(a => `
+        <div class="recent-item">
+          <div>
+            <div class="ri-tema">${a.tema}</div>
+            <div class="ri-texto">${a.texto}</div>
+          </div>
+          <div style="text-align:right">
+            <span class="tag tag-blue">${a.data}</span>
+          </div>
+        </div>
+      `).join('')}
+    </div>
+  `;
+}
+
+// ── SITE CONFIG ────────────────────────────────────────────────────
+function renderSiteConfig() {
+  const s = DATA.site;
+  return `
+    <div class="editor-section">
+      <div class="editor-section-header">
+        <h4>Informações gerais do site</h4>
+      </div>
+      <div class="editor-section-body">
+        <div class="field-row">
+          <div class="field-group">
+            <div class="field-label">Título</div>
+            <input class="field-input" id="sc-titulo" value="${s.titulo || ''}">
+          </div>
+          <div class="field-group">
+            <div class="field-label">Subtítulo</div>
+            <input class="field-input" id="sc-subtitulo" value="${s.subtitulo || ''}">
+          </div>
+        </div>
+        <div class="field-row">
+          <div class="field-group">
+            <div class="field-label">Edição</div>
+            <input class="field-input" id="sc-edicao" value="${s.edicao || ''}">
+          </div>
+          <div class="field-group">
+            <div class="field-label">Última atualização</div>
+            <input class="field-input" id="sc-atualizacao" value="${s.ultima_atualizacao || ''}">
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function salvarSiteConfig() {
+  DATA.site.titulo = document.getElementById('sc-titulo').value;
+  DATA.site.subtitulo = document.getElementById('sc-subtitulo').value;
+  DATA.site.edicao = document.getElementById('sc-edicao').value;
+  DATA.site.ultima_atualizacao = document.getElementById('sc-atualizacao').value;
+  mostrarDownload();
+  showToast('Configurações salvas!');
+}
+
+// ── ATUALIZAÇÕES ───────────────────────────────────────────────────
+function renderAtualizacoes() {
+  return `<div id="atualiz-list">
+    ${DATA.atualizacoes.map((a,i) => `
+      <div class="atu-item" id="atu-${i}">
+        <div class="field-row-3" style="margin-bottom:8px">
+          <div>
+            <div class="bloco-sublabel">Data</div>
+            <input class="field-input" id="atu-data-${i}" value="${a.data}">
+          </div>
+          <div>
+            <div class="bloco-sublabel">Tema</div>
+            <input class="field-input" id="atu-tema-${i}" value="${a.tema}">
+          </div>
+          <div style="display:flex;align-items:flex-end">
+            <button class="btn btn-danger" style="width:100%;padding:10px" onclick="removerAtu(${i})">Remover</button>
+          </div>
+        </div>
+        <div class="bloco-sublabel">Texto</div>
+        <textarea class="field-input" id="atu-texto-${i}">${a.texto}</textarea>
+      </div>
+    `).join('')}
+  </div>`;
+}
+
+function addAtualizacao() {
+  DATA.atualizacoes.unshift({ data: 'Mai 2026', tema: 'Novo tema', texto: 'Descrição da atualização.' });
+  document.getElementById('main-body').innerHTML = renderAtualizacoes();
+}
+
+function removerAtu(i) {
+  if (confirm('Remover esta atualização?')) {
+    DATA.atualizacoes.splice(i, 1);
+    document.getElementById('main-body').innerHTML = renderAtualizacoes();
+  }
+}
+
+function salvarAtualizacoes() {
+  DATA.atualizacoes = DATA.atualizacoes.map((_, i) => ({
+    data: document.getElementById(`atu-data-${i}`)?.value || '',
+    tema: document.getElementById(`atu-tema-${i}`)?.value || '',
+    texto: document.getElementById(`atu-texto-${i}`)?.value || ''
+  }));
+  mostrarDownload();
+  showToast('Atualizações salvas!');
+}
+
+// ── FAQ ─────────────────────────────────────────────────────────────
+function renderFaq() {
+  const ids = DATA.temas.map(t => `<option value="${t.id}">${t.nome}</option>`).join('');
+  return `<div id="faq-list">
+    ${DATA.faq_home.map((f,i) => `
+      <div class="faq-item">
+        <div class="field-row" style="margin-bottom:8px">
+          <div>
+            <div class="bloco-sublabel">Tema relacionado</div>
+            <select class="field-input" id="faq-tema-${i}">
+              ${DATA.temas.map(t => `<option value="${t.id}" ${t.id===f.tema_id?'selected':''}>${t.nome}</option>`).join('')}
+            </select>
+          </div>
+          <div style="display:flex;align-items:flex-end">
+            <button class="btn btn-danger" style="width:100%;padding:10px" onclick="removerFaq(${i})">Remover</button>
+          </div>
+        </div>
+        <div class="bloco-sublabel">Pergunta</div>
+        <input class="field-input" id="faq-perg-${i}" value="${f.pergunta}">
+      </div>
+    `).join('')}
+  </div>`;
+}
+
+function addFaq() {
+  DATA.faq_home.push({ pergunta: 'Nova pergunta?', tema_id: DATA.temas[0].id });
+  document.getElementById('main-body').innerHTML = renderFaq();
+}
+
+function removerFaq(i) {
+  if (confirm('Remover esta pergunta?')) {
+    DATA.faq_home.splice(i, 1);
+    document.getElementById('main-body').innerHTML = renderFaq();
+  }
+}
+
+function salvarFaq() {
+  DATA.faq_home = DATA.faq_home.map((_,i) => ({
+    pergunta: document.getElementById(`faq-perg-${i}`)?.value || '',
+    tema_id: document.getElementById(`faq-tema-${i}`)?.value || ''
+  }));
+  mostrarDownload();
+  showToast('FAQ salvo!');
+}
+
+// ── EDITOR DE TEMA ─────────────────────────────────────────────────
+function editarTema(id) {
+  temaAtual = DATA.temas.find(t => t.id === id);
+  secaoAtual = 'tema';
+  setActive(`nav-${id}`);
+
+  const title = document.getElementById('main-title');
+  const sub = document.getElementById('main-subtitle');
+  const actions = document.getElementById('header-actions');
+  title.textContent = temaAtual.nome;
+  sub.textContent = `Tema ${temaAtual.num} · ${temaAtual.secoes.length} seções`;
+  actions.innerHTML = `<button class="btn btn-success" onclick="salvarTema()">Salvar tema</button>`;
+
+  document.getElementById('main-body').innerHTML = renderEditorTema(temaAtual);
+  document.querySelectorAll('.editor-section-header').forEach(el => {
+    el.addEventListener('click', function() {
+      const body = this.nextElementSibling;
+      const collapsed = body.classList.toggle('hidden');
+      this.classList.toggle('collapsed', collapsed);
+    });
+  });
+}
+
+function renderEditorTema(t) {
+  return `
+    <div id="download-bar" class="download-bar">
+      <p>📥 Há alterações não exportadas. Clique em <span>Exportar JSON</span> para baixar o arquivo atualizado.</p>
+      <button class="btn btn-primary" onclick="exportarJSON()">Exportar JSON</button>
+    </div>
+
+    <!-- Metadados -->
+    <div class="editor-section">
+      <div class="editor-section-header">
+        <h4>📋 Metadados do tema</h4>
+        <span class="toggle">▾</span>
+      </div>
+      <div class="editor-section-body">
+        <div class="field-row">
+          <div class="field-group">
+            <div class="field-label">Nome <span class="badge">obrigatório</span></div>
+            <input class="field-input" id="meta-nome" value="${t.nome || ''}">
+          </div>
+          <div class="field-group">
+            <div class="field-label">Ícone (emoji)</div>
+            <input class="field-input" id="meta-icone" value="${t.icone || ''}">
+          </div>
+        </div>
+        <div class="field-group">
+          <div class="field-label">Descrição (card na home)</div>
+          <textarea class="field-input" id="meta-desc">${t.desc || ''}</textarea>
+        </div>
+        <div class="field-row">
+          <div class="field-group">
+            <div class="field-label">Última atualização</div>
+            <input class="field-input" id="meta-atualizacao" value="${t.atualizacao || ''}">
+          </div>
+          <div class="field-group">
+            <div class="field-label">Responsável</div>
+            <input class="field-input" id="meta-responsavel" value="${t.responsavel || ''}">
+          </div>
+        </div>
+        <div class="field-group">
+          <div class="field-label">Tags (separadas por vírgula)</div>
+          <input class="field-input" id="meta-tags" value="${(t.tags||[]).join(', ')}">
+        </div>
+      </div>
+    </div>
+
+    <!-- Seções de conteúdo -->
+    <div class="editor-section">
+      <div class="editor-section-header">
+        <h4>📝 Conteúdo — ${t.secoes.length} seções</h4>
+        <span class="toggle">▾</span>
+      </div>
+      <div class="editor-section-body" id="secoes-container">
+        ${t.secoes.map((s, si) => renderSecao(s, si)).join('')}
+        <button class="add-secao-btn" onclick="addSecao()">+ Adicionar seção</button>
+      </div>
+    </div>
+
+    <!-- Legislação -->
+    <div class="editor-section">
+      <div class="editor-section-header">
+        <h4>⚖️ Legislação — ${(t.legislacao||[]).length} normas</h4>
+        <span class="toggle">▾</span>
+      </div>
+      <div class="editor-section-body" id="leg-container">
+        ${(t.legislacao||[]).map((l,li) => renderLeg(l,li)).join('')}
+        <button class="add-item-btn" onclick="addLeg()">+ Adicionar norma</button>
+      </div>
+    </div>
+  `;
+}
+
+function renderSecao(s, si) {
+  return `
+    <div class="secao-block" id="secao-${si}">
+      <div class="secao-header">
+        <span class="secao-drag">⠿</span>
+        <input value="${s.titulo || ''}" id="secao-titulo-${si}" placeholder="Título da seção">
+        <button style="padding:4px 8px;border:none;background:rgba(239,68,68,.15);color:#ef4444;border-radius:4px;cursor:pointer;font-size:11px" onclick="removerSecao(${si})">Remover seção</button>
+      </div>
+      <div class="secao-body">
+        <div id="blocos-${si}">
+          ${s.conteudo.map((b, bi) => renderBloco(b, si, bi)).join('')}
+        </div>
+        <div class="add-bloco-menu">
+          <span style="font-size:11px;color:var(--text3);margin-right:4px;line-height:28px">+ Bloco:</span>
+          <button class="add-bloco-btn" onclick="addBloco(${si},'texto')">Texto</button>
+          <button class="add-bloco-btn" onclick="addBloco(${si},'info')">Info</button>
+          <button class="add-bloco-btn" onclick="addBloco(${si},'atencao')">Atenção</button>
+          <button class="add-bloco-btn" onclick="addBloco(${si},'lista')">Lista</button>
+          <button class="add-bloco-btn" onclick="addBloco(${si},'tabela')">Tabela</button>
+          <button class="add-bloco-btn" onclick="addBloco(${si},'subtitulo')">Subtítulo</button>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function renderBloco(b, si, bi) {
+  const tipoClass = `tipo-${b.tipo}`;
+  const tipoLabel = b.tipo.toUpperCase();
+  const header = `
+    <div class="bloco-header">
+      <span class="bloco-tipo ${tipoClass}">${tipoLabel}</span>
+      <div class="bloco-actions">
+        <button onclick="moverBloco(${si},${bi},-1)">↑</button>
+        <button onclick="moverBloco(${si},${bi},1)">↓</button>
+        <button class="del" onclick="removerBloco(${si},${bi})">✕</button>
+      </div>
+    </div>
+  `;
+
+  let corpo = '';
+  if (b.tipo === 'texto' || b.tipo === 'subtitulo') {
+    corpo = `<textarea class="field-input" id="b-${si}-${bi}-valor" rows="3">${b.valor||''}</textarea>`;
+  } else if (b.tipo === 'info' || b.tipo === 'atencao') {
+    corpo = `
+      <div class="bloco-sublabel">Título do bloco</div>
+      <input class="field-input" id="b-${si}-${bi}-titulo" value="${b.titulo||''}" style="margin-bottom:8px">
+      <div class="bloco-sublabel">Texto</div>
+      <textarea class="field-input" id="b-${si}-${bi}-texto" rows="3">${b.texto||''}</textarea>
+    `;
+  } else if (b.tipo === 'lista') {
+    const itens = (b.itens||[]).map((item, ii) => `
+      <div class="lista-item" id="lista-item-${si}-${bi}-${ii}">
+        <textarea class="field-input" id="b-${si}-${bi}-item-${ii}" rows="2">${item}</textarea>
+        <button onclick="removerItemLista(${si},${bi},${ii})">✕</button>
+      </div>
+    `).join('');
+    corpo = `
+      <div id="lista-${si}-${bi}">${itens}</div>
+      <button class="add-item-btn" onclick="addItemLista(${si},${bi})">+ Adicionar item</button>
+    `;
+  } else if (b.tipo === 'tabela') {
+    const cols = (b.cabecalho||[]).length || 2;
+    const headerRow = (b.cabecalho||[]).map((h,ci) =>
+      `<th><input value="${h}" id="b-${si}-${bi}-cab-${ci}"></th>`).join('');
+    const rows = (b.linhas||[]).map((row,ri) =>
+      `<tr>${row.map((cell,ci) => `<td><input value="${cell||''}" id="b-${si}-${bi}-row-${ri}-${ci}"></td>`).join('')}<td><button style="border:none;background:transparent;color:var(--red);cursor:pointer" onclick="removerLinha(${si},${bi},${ri})">✕</button></td></tr>`
+    ).join('');
+    corpo = `
+      <div class="tabela-editor">
+        <table>
+          <thead><tr>${headerRow}<th></th></tr></thead>
+          <tbody id="tabela-body-${si}-${bi}">${rows}</tbody>
+        </table>
+        <button class="add-row-btn" onclick="addLinha(${si},${bi})">+ Adicionar linha</button>
+      </div>
+    `;
+  }
+
+  return `<div class="bloco" id="bloco-${si}-${bi}">${header}<div class="bloco-body">${corpo}</div></div>`;
+}
+
+// ── AÇÕES DE BLOCOS ────────────────────────────────────────────────
+function lerBlocos() {
+  // Lê os valores da UI de volta para DATA antes de qualquer operação
+  if (!temaAtual) return;
+  temaAtual.secoes.forEach((s, si) => {
+    s.titulo = document.getElementById(`secao-titulo-${si}`)?.value || s.titulo;
+    s.conteudo.forEach((b, bi) => {
+      if (b.tipo === 'texto' || b.tipo === 'subtitulo') {
+        b.valor = document.getElementById(`b-${si}-${bi}-valor`)?.value ?? b.valor;
+      } else if (b.tipo === 'info' || b.tipo === 'atencao') {
+        b.titulo = document.getElementById(`b-${si}-${bi}-titulo`)?.value ?? b.titulo;
+        b.texto = document.getElementById(`b-${si}-${bi}-texto`)?.value ?? b.texto;
+      } else if (b.tipo === 'lista') {
+        b.itens = b.itens.map((_, ii) => document.getElementById(`b-${si}-${bi}-item-${ii}`)?.value ?? '');
+      } else if (b.tipo === 'tabela') {
+        b.cabecalho = b.cabecalho.map((_, ci) => document.getElementById(`b-${si}-${bi}-cab-${ci}`)?.value ?? '');
+        b.linhas = b.linhas.map((row, ri) => row.map((_, ci) => document.getElementById(`b-${si}-${bi}-row-${ri}-${ci}`)?.value ?? ''));
+      }
+    });
+  });
+}
+
+function addBloco(si, tipo) {
+  lerBlocos();
+  const blocoNovo = tipo === 'texto' ? { tipo, valor: '' }
+    : tipo === 'subtitulo' ? { tipo, valor: '' }
+    : tipo === 'info' || tipo === 'atencao' ? { tipo, titulo: '', texto: '' }
+    : tipo === 'lista' ? { tipo, itens: [''] }
+    : tipo === 'tabela' ? { tipo, cabecalho: ['Coluna 1', 'Coluna 2'], linhas: [['','']] }
+    : { tipo, valor: '' };
+  temaAtual.secoes[si].conteudo.push(blocoNovo);
+  rerender();
+}
+
+function removerBloco(si, bi) {
+  lerBlocos();
+  temaAtual.secoes[si].conteudo.splice(bi, 1);
+  rerender();
+}
+
+function moverBloco(si, bi, dir) {
+  lerBlocos();
+  const arr = temaAtual.secoes[si].conteudo;
+  const ni = bi + dir;
+  if (ni < 0 || ni >= arr.length) return;
+  [arr[bi], arr[ni]] = [arr[ni], arr[bi]];
+  rerender();
+}
+
+function addItemLista(si, bi) {
+  lerBlocos();
+  temaAtual.secoes[si].conteudo[bi].itens.push('');
+  rerender();
+}
+
+function removerItemLista(si, bi, ii) {
+  lerBlocos();
+  temaAtual.secoes[si].conteudo[bi].itens.splice(ii, 1);
+  rerender();
+}
+
+function addLinha(si, bi) {
+  lerBlocos();
+  const cols = temaAtual.secoes[si].conteudo[bi].cabecalho.length;
+  temaAtual.secoes[si].conteudo[bi].linhas.push(Array(cols).fill(''));
+  rerender();
+}
+
+function removerLinha(si, bi, ri) {
+  lerBlocos();
+  temaAtual.secoes[si].conteudo[bi].linhas.splice(ri, 1);
+  rerender();
+}
+
+function addSecao() {
+  lerBlocos();
+  temaAtual.secoes.push({ titulo: 'Nova seção', conteudo: [{ tipo: 'texto', valor: '' }] });
+  rerender();
+}
+
+function removerSecao(si) {
+  if (!confirm('Remover esta seção e todo seu conteúdo?')) return;
+  lerBlocos();
+  temaAtual.secoes.splice(si, 1);
+  rerender();
+}
+
+function addLeg() {
+  if (!temaAtual.legislacao) temaAtual.legislacao = [];
+  temaAtual.legislacao.push({ tipo: 'Lei', nome: '', desc: '', link: '' });
+  rerenderLeg();
+}
+
+function rerender() {
+  const body = document.getElementById('main-body');
+  body.innerHTML = renderEditorTema(temaAtual);
+  document.querySelectorAll('.editor-section-header').forEach(el => {
+    el.addEventListener('click', function() {
+      const b = this.nextElementSibling;
+      b.classList.toggle('hidden');
+      this.classList.toggle('collapsed', b.classList.contains('hidden'));
+    });
+  });
+  mostrarDownload();
+}
+
+function rerenderLeg() {
+  document.getElementById('leg-container').innerHTML =
+    (temaAtual.legislacao||[]).map((l,li) => renderLeg(l,li)).join('') +
+    `<button class="add-item-btn" onclick="addLeg()">+ Adicionar norma</button>`;
+}
+
+function renderLeg(l, li) {
+  return `
+    <div class="leg-item">
+      <div class="field-row-3" style="margin-bottom:8px">
+        <div>
+          <div class="bloco-sublabel">Tipo</div>
+          <select class="field-input" id="leg-tipo-${li}">
+            ${['Lei','LC','Dec','DL','IN','Res','Port','Acórdão','Outro'].map(t =>
+              `<option ${t===l.tipo?'selected':''}>${t}</option>`).join('')}
+          </select>
+        </div>
+        <div style="grid-column:span 2;display:flex;align-items:flex-end;gap:6px">
+          <div style="flex:1">
+            <div class="bloco-sublabel">Nome da norma</div>
+            <input class="field-input" id="leg-nome-${li}" value="${l.nome||''}">
+          </div>
+          <button class="btn btn-danger" style="padding:10px;flex-shrink:0" onclick="removerLeg(${li})">✕</button>
+        </div>
+      </div>
+      <div class="bloco-sublabel">Descrição</div>
+      <input class="field-input" id="leg-desc-${li}" value="${l.desc||''}" style="margin-bottom:6px">
+      <div class="bloco-sublabel">Link</div>
+      <input class="field-input" id="leg-link-${li}" value="${l.link||''}" placeholder="https://...">
+    </div>
+  `;
+}
+
+function removerLeg(li) {
+  if (!confirm('Remover esta norma?')) return;
+  temaAtual.legislacao.splice(li, 1);
+  rerenderLeg();
+}
+
+// ── SALVAR TEMA ────────────────────────────────────────────────────
+function salvarTema() {
+  lerBlocos();
+  temaAtual.nome = document.getElementById('meta-nome')?.value || temaAtual.nome;
+  temaAtual.icone = document.getElementById('meta-icone')?.value || temaAtual.icone;
+  temaAtual.desc = document.getElementById('meta-desc')?.value || temaAtual.desc;
+  temaAtual.atualizacao = document.getElementById('meta-atualizacao')?.value || temaAtual.atualizacao;
+  temaAtual.responsavel = document.getElementById('meta-responsavel')?.value || temaAtual.responsavel;
+  const tagsRaw = document.getElementById('meta-tags')?.value || '';
+  temaAtual.tags = tagsRaw.split(',').map(t => t.trim()).filter(Boolean);
+
+  // Legislação
+  if (temaAtual.legislacao) {
+    temaAtual.legislacao = temaAtual.legislacao.map((_,li) => ({
+      tipo: document.getElementById(`leg-tipo-${li}`)?.value || '',
+      nome: document.getElementById(`leg-nome-${li}`)?.value || '',
+      desc: document.getElementById(`leg-desc-${li}`)?.value || '',
+      link: document.getElementById(`leg-link-${li}`)?.value || ''
+    }));
+  }
+
+  mostrarDownload();
+  showToast('Tema salvo! Exporte o JSON para aplicar.');
+}
+
+// ── EXPORTAR JSON ──────────────────────────────────────────────────
+function mostrarDownload() {
+  const bar = document.getElementById('download-bar');
+  if (bar) bar.classList.add('show');
+}
+
+function exportarJSON() {
+  const json = JSON.stringify(DATA, null, 2);
+  const blob = new Blob([json], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'conteudo.json';
+  a.click();
+  URL.revokeObjectURL(url);
+  showToast('JSON exportado! Suba no GitHub.');
+}
+
+// ── TOAST ──────────────────────────────────────────────────────────
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = '✓ ' + msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 3000);
+}
+</script>
+</body>
+</html>
