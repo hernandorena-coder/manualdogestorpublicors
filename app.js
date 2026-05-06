@@ -1,8 +1,9 @@
 // ── Carrega dados do conteudo.json ──────────────────────────────
 let D, S, TEMAS;
 
-function init() {
-  D = window.CONTEUDO;
+async function init() {
+  const res = await fetch('conteudo.json');
+  D = await res.json();
   S = D.site;
   TEMAS = D.temas;
   main();
