@@ -55,6 +55,28 @@ document.getElementById('faq-home').innerHTML = D.faq_home.map(f=>
 document.getElementById('atu-home').innerHTML = D.atualizacoes.map(a=>
   `<div class="ai"><span class="atu-d">${a.data}</span><div class="atu-t"><strong>${a.tema}:</strong> ${a.texto}</div></div>`).join('');
 
+// Montar chips de filtro ao carregar
+(function(){
+  const todasTags=new Set();
+  TEMAS.forEach(t=>(t.tags||[]).forEach(tg=>todasTags.add(tg)));
+  const labelMap={
+    'fundamental':'Fundamentos','financeiro':'Finanças','transferências':'Transferências',
+    'controle':'Controle','compliance':'Integridade','pessoal':'Pessoal',
+    'indenização':'Indenizações','licitação':'Licitações'
+  };
+  const wrap=document.getElementById('pt-filtros');
+  if(wrap){
+    [...todasTags].sort().forEach(tag=>{
+      const label=labelMap[tag]||tag;
+      const btn=document.createElement('button');
+      btn.className='pt-filtro';
+      btn.textContent=label;
+      btn.onclick=()=>filtrarPorTag(tag,btn);
+      wrap.appendChild(btn);
+    });
+  }
+})();
+
 } // fim main()
 
 // ── Roteamento ──────────────────────────────────────────────────
@@ -788,28 +810,6 @@ function filtrarPorTag(tag,btn){
   if(_ptFiltroTag) btn.classList.add('on');
   renderTemas(document.getElementById('pt-inp')?.value||'',_ptFiltroTag);
 }
-
-// Montar chips de filtro ao carregar
-(function(){
-  const todasTags=new Set();
-  TEMAS.forEach(t=>(t.tags||[]).forEach(tg=>todasTags.add(tg)));
-  const labelMap={
-    'fundamental':'Fundamentos','financeiro':'Finanças','transferências':'Transferências',
-    'controle':'Controle','compliance':'Integridade','pessoal':'Pessoal',
-    'indenização':'Indenizações','licitação':'Licitações'
-  };
-  const wrap=document.getElementById('pt-filtros');
-  if(wrap){
-    [...todasTags].sort().forEach(tag=>{
-      const label=labelMap[tag]||tag;
-      const btn=document.createElement('button');
-      btn.className='pt-filtro';
-      btn.textContent=label;
-      btn.onclick=()=>filtrarPorTag(tag,btn);
-      wrap.appendChild(btn);
-    });
-  }
-})();
 
 // ── Página Legislação ─────────────────────────────────────────
 function goLeg(){
