@@ -21,6 +21,35 @@
     --text3: #5a6080;
     --radius: 10px;
   }
+  :root.light {
+    --bg: #f4f6fb;
+    --surface: #ffffff;
+    --surface2: #eef1f8;
+    --border: #dde2f0;
+    --accent: #2a5bd7;
+    --accent2: #6c3fc9;
+    --green: #16a34a;
+    --yellow: #d97706;
+    --red: #dc2626;
+    --text: #1a1f36;
+    --text2: #4a5270;
+    --text3: #8b91a8;
+    --radius: 10px;
+  }
+  .theme-toggle {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 8px 12px; margin-bottom: 8px;
+    background: var(--surface2); border-radius: 8px;
+    font-size: 12px; color: var(--text2);
+  }
+  .theme-toggle-btn {
+    display: flex; align-items: center; gap: 4px;
+    padding: 4px 10px; border-radius: 6px;
+    border: 1px solid var(--border); background: var(--bg);
+    color: var(--text2); font-family: 'Sora', sans-serif;
+    font-size: 11px; cursor: pointer; transition: all .2s;
+  }
+  .theme-toggle-btn:hover { border-color: var(--accent); color: var(--accent); }
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body { font-family: 'Sora', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
 
@@ -375,6 +404,10 @@
         <div id="temas-nav"></div>
       </nav>
       <div class="sidebar-footer">
+        <div class="theme-toggle">
+          <span id="theme-label">🌙 Tema escuro</span>
+          <button class="theme-toggle-btn" onclick="alternarTema()" id="theme-btn">☀️ Claro</button>
+        </div>
         <button class="logout-btn" onclick="doLogout()">Sair</button>
       </div>
     </aside>
@@ -398,10 +431,28 @@
 <div id="toast">✓ Alterações salvas</div>
 
 <script>
+// ── TEMA ───────────────────────────────────────────────────────────
+function alternarTema() {
+  const isLight = document.documentElement.classList.toggle('light');
+  document.getElementById('theme-label').textContent = isLight ? '☀️ Tema claro' : '🌙 Tema escuro';
+  document.getElementById('theme-btn').textContent = isLight ? '🌙 Escuro' : '☀️ Claro';
+  localStorage.setItem('admin-tema', isLight ? 'light' : 'dark');
+}
+
+function carregarTema() {
+  const saved = localStorage.getItem('admin-tema');
+  if (saved === 'light') {
+    document.documentElement.classList.add('light');
+    document.getElementById('theme-label').textContent = '☀️ Tema claro';
+    document.getElementById('theme-btn').textContent = '🌙 Escuro';
+  }
+}
+
 // ── CREDENCIAIS ───────────────────────────────────────────────────
 const USUARIOS = {
   'cage': 'gestor2026',
-  'admin': 'cage@rs2026'
+  'admin': 'cage@rs2026',
+  'admin-cage': 'GabCon@cage2026'
 };
 
 // ── DADOS ─────────────────────────────────────────────────────────
@@ -436,6 +487,7 @@ function doLogout() {
 
 // ── CARREGAR DADOS ─────────────────────────────────────────────────
 async function carregarDados() {
+  carregarTema();
   try {
     const res = await fetch('conteudo.json');
     DATA = await res.json();
