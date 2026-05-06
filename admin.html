@@ -344,6 +344,209 @@
   .download-bar p { font-size: 13px; color: var(--text); }
   .download-bar p span { color: var(--accent); font-weight: 600; }
 
+  /* Histórico */
+  .hist-empty { text-align: center; padding: 32px; color: var(--text3); font-size: 13px; }
+  .hist-item {
+    background: var(--bg); border: 1px solid var(--border);
+    border-radius: 8px; padding: 12px 16px; margin-bottom: 8px;
+    display: flex; gap: 12px; align-items: flex-start;
+  }
+  .hist-icon {
+    width: 32px; height: 32px; border-radius: 8px; flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center; font-size: 14px;
+  }
+  .hist-icon.tema { background: rgba(79,124,255,.15); }
+  .hist-icon.config { background: rgba(124,92,252,.15); }
+  .hist-icon.atu { background: rgba(34,197,94,.15); }
+  .hist-icon.faq { background: rgba(245,158,11,.15); }
+  .hist-icon.export { background: rgba(139,145,168,.1); }
+  .hist-info { flex: 1; }
+  .hist-info .hi-acao { font-size: 13px; font-weight: 600; color: var(--text); }
+  .hist-info .hi-detalhe { font-size: 12px; color: var(--text2); margin-top: 2px; }
+  .hist-info .hi-quando { font-size: 11px; color: var(--text3); margin-top: 4px; }
+  .hist-clear-btn {
+    padding: 6px 14px; border-radius: 6px; border: 1px solid var(--border);
+    background: transparent; color: var(--text3); font-family: 'Sora', sans-serif;
+    font-size: 11px; cursor: pointer; transition: all .2s;
+  }
+  .hist-clear-btn:hover { border-color: var(--red); color: var(--red); }
+  .nav-item .hist-badge {
+    margin-left: auto; background: rgba(79,124,255,.2); color: var(--accent);
+    font-size: 10px; font-weight: 700; padding: 1px 6px; border-radius: 10px;
+  }
+
+  /* Indicadores de saúde dos temas */
+  .nav-item .nav-warn { margin-left: auto; font-size: 13px; }
+  .alerta-card {
+    background: rgba(245,158,11,.07); border: 1px solid rgba(245,158,11,.25);
+    border-radius: var(--radius); padding: 16px 20px; margin-bottom: 8px;
+    display: flex; align-items: center; gap: 14px; cursor: pointer;
+    transition: background .2s;
+  }
+  .alerta-card:hover { background: rgba(245,158,11,.13); }
+  .alerta-card .ac-icon { font-size: 20px; flex-shrink: 0; }
+  .alerta-card .ac-nome { font-size: 13px; font-weight: 600; color: var(--text); }
+  .alerta-card .ac-detalhe { font-size: 12px; color: var(--text2); margin-top: 2px; }
+  .alerta-card .ac-badge {
+    margin-left: auto; padding: 3px 10px; border-radius: 20px; flex-shrink: 0;
+    font-size: 11px; font-weight: 600;
+  }
+  .badge-warn { background: rgba(245,158,11,.2); color: var(--yellow); }
+  .badge-ok { background: rgba(34,197,94,.2); color: var(--green); }
+  .badge-error { background: rgba(239,68,68,.2); color: var(--red); }
+
+  /* Barra de completude */
+  .completude-bar-wrap { margin-top: 4px; }
+  .completude-bar-bg {
+    height: 4px; background: var(--border); border-radius: 2px; overflow: hidden;
+  }
+  .completude-bar-fill { height: 100%; border-radius: 2px; transition: width .4s; }
+  .fill-green { background: var(--green); }
+  .fill-yellow { background: var(--yellow); }
+  .fill-red { background: var(--red); }
+
+  /* Seção de diagnóstico */
+  .diag-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 24px; }
+  .diag-card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 16px 20px;
+  }
+  .diag-card .dc-num { font-size: 28px; font-weight: 700; font-family: 'JetBrains Mono', monospace; }
+  .diag-card .dc-label { font-size: 12px; color: var(--text2); margin-top: 2px; }
+  .dc-warn .dc-num { color: var(--yellow); }
+  .dc-ok .dc-num { color: var(--green); }
+  .dc-red .dc-num { color: var(--red); }
+
+  /* Busca de conteúdo */
+  .busca-result {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius); margin-bottom: 8px; overflow: hidden;
+    cursor: pointer; transition: border-color .2s;
+  }
+  .busca-result:hover { border-color: var(--accent); }
+  .busca-result-header {
+    padding: 10px 16px; background: var(--surface2);
+    display: flex; align-items: center; gap: 10px;
+  }
+  .busca-result-header .br-tema { font-size: 12px; font-weight: 600; color: var(--accent); }
+  .busca-result-header .br-secao { font-size: 11px; color: var(--text2); }
+  .busca-result-header .br-tipo { margin-left: auto; }
+  .busca-result-body { padding: 10px 16px; font-size: 13px; color: var(--text2); line-height: 1.6; }
+  .busca-result-body mark {
+    background: rgba(245,158,11,.3); color: var(--text);
+    border-radius: 2px; padding: 0 2px; font-weight: 600;
+  }
+  .busca-empty { text-align: center; padding: 40px; color: var(--text3); font-size: 13px; }
+  .busca-input-wrap {
+    display: flex; gap: 8px; margin-bottom: 20px;
+  }
+  .busca-input-wrap input {
+    flex: 1; padding: 12px 14px; background: var(--bg);
+    border: 1px solid var(--border); border-radius: var(--radius);
+    color: var(--text); font-family: 'Sora', sans-serif; font-size: 14px;
+  }
+  .busca-input-wrap input:focus { outline: none; border-color: var(--accent); }
+  .busca-stats { font-size: 12px; color: var(--text3); margin-bottom: 16px; }
+
+  /* Modal de pré-visualização */
+  .modal-overlay {
+    position: fixed; inset: 0; background: rgba(0,0,0,.7);
+    display: flex; align-items: center; justify-content: center;
+    z-index: 500; padding: 24px; backdrop-filter: blur(4px);
+  }
+  .modal-box {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 16px; width: 100%; max-width: 680px; max-height: 85vh;
+    display: flex; flex-direction: column; box-shadow: 0 32px 80px rgba(0,0,0,.5);
+  }
+  .modal-header {
+    padding: 16px 24px; border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: space-between; flex-shrink: 0;
+  }
+  .modal-header h4 { font-size: 14px; font-weight: 600; color: var(--text); }
+  .modal-header p { font-size: 12px; color: var(--text2); margin-top: 2px; }
+  .modal-close {
+    padding: 6px 10px; border-radius: 6px; border: none;
+    background: var(--surface2); color: var(--text2);
+    cursor: pointer; font-size: 16px; transition: all .2s;
+  }
+  .modal-close:hover { background: var(--border); color: var(--text); }
+  .modal-body { padding: 24px; overflow-y: auto; flex: 1; }
+
+  /* Preview dos blocos — espelha o visual do site */
+  .prev-bloco { margin-bottom: 16px; }
+  .prev-texto { font-size: 14px; line-height: 1.8; color: var(--text); }
+  .prev-subtitulo { font-size: 16px; font-weight: 700; color: var(--text); margin-bottom: 4px; padding-bottom: 8px; border-bottom: 2px solid var(--accent); }
+  .prev-info {
+    background: rgba(79,124,255,.08); border-left: 4px solid var(--accent);
+    border-radius: 0 8px 8px 0; padding: 14px 16px;
+  }
+  .prev-atencao {
+    background: rgba(245,158,11,.08); border-left: 4px solid var(--yellow);
+    border-radius: 0 8px 8px 0; padding: 14px 16px;
+  }
+  .prev-info strong, .prev-atencao strong { display: block; margin-bottom: 6px; font-size: 13px; }
+  .prev-info strong { color: var(--accent); }
+  .prev-atencao strong { color: var(--yellow); }
+  .prev-info p, .prev-atencao p { font-size: 13px; color: var(--text2); line-height: 1.6; }
+  .prev-lista { padding-left: 20px; }
+  .prev-lista li { font-size: 13px; color: var(--text2); line-height: 1.8; }
+  .prev-tabela { width: 100%; border-collapse: collapse; font-size: 13px; }
+  .prev-tabela th { background: var(--surface2); padding: 8px 12px; text-align: left; font-weight: 600; color: var(--text); border: 1px solid var(--border); }
+  .prev-tabela td { padding: 8px 12px; color: var(--text2); border: 1px solid var(--border); }
+  .prev-tabela tr:nth-child(even) td { background: rgba(255,255,255,.02); }
+
+  /* Validador de links */
+  .leg-item { position: relative; }
+  .link-status {
+    display: inline-flex; align-items: center; gap: 5px;
+    font-size: 11px; font-weight: 600; padding: 3px 9px;
+    border-radius: 20px; margin-top: 6px;
+  }
+  .link-ok { background: rgba(34,197,94,.15); color: var(--green); }
+  .link-erro { background: rgba(239,68,68,.15); color: var(--red); }
+  .link-verificando { background: rgba(139,145,168,.1); color: var(--text3); }
+  .link-aviso { background: rgba(245,158,11,.15); color: var(--yellow); }
+  .validar-links-btn {
+    padding: 8px 14px; border-radius: 8px; border: 1px solid var(--border);
+    background: transparent; color: var(--text2); font-family: 'Sora', sans-serif;
+    font-size: 12px; cursor: pointer; transition: all .2s; display: flex; align-items: center; gap: 6px;
+  }
+  .validar-links-btn:hover { border-color: var(--accent); color: var(--accent); }
+  .validar-links-btn:disabled { opacity: .5; cursor: not-allowed; }
+
+  /* Rastreamento de campos alterados */
+  .field-input.alterado {
+    border-color: var(--yellow) !important;
+    background: rgba(245,158,11,.04) !important;
+  }
+  .campo-alterado-badge {
+    display: inline-block; font-size: 9px; font-weight: 700;
+    padding: 1px 5px; border-radius: 4px; margin-left: 6px;
+    background: rgba(245,158,11,.2); color: var(--yellow);
+    vertical-align: middle; letter-spacing: .3px;
+  }
+  .changes-bar {
+    position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%);
+    background: var(--surface); border: 1px solid var(--yellow);
+    border-radius: 10px; padding: 10px 20px;
+    display: none; align-items: center; gap: 12px;
+    box-shadow: 0 8px 32px rgba(0,0,0,.4); z-index: 400;
+    font-size: 13px; color: var(--text);
+  }
+  .changes-bar.show { display: flex; }
+  .changes-bar strong { color: var(--yellow); }
+  .changes-bar .cb-salvar {
+    padding: 6px 14px; border-radius: 6px; border: none;
+    background: var(--yellow); color: #000; font-family: 'Sora', sans-serif;
+    font-size: 12px; font-weight: 700; cursor: pointer;
+  }
+  .changes-bar .cb-descartar {
+    padding: 6px 10px; border-radius: 6px; border: 1px solid var(--border);
+    background: transparent; color: var(--text2); font-family: 'Sora', sans-serif;
+    font-size: 12px; cursor: pointer;
+  }
+
   /* Scrollbar */
   ::-webkit-scrollbar { width: 6px; }
   ::-webkit-scrollbar-track { background: transparent; }
@@ -400,6 +603,12 @@
         <div class="nav-item" onclick="showSection('faq')">
           <span>❓</span><span>Perguntas Frequentes</span>
         </div>
+        <div class="nav-item" onclick="showSection('busca')">
+          <span>🔍</span><span>Buscar no Conteúdo</span>
+        </div>
+        <div class="nav-item" onclick="showSection('historico')" id="nav-historico">
+          <span>📋</span><span>Histórico de Edições</span><span class="hist-badge" id="hist-badge" style="display:none">0</span>
+        </div>
         <div class="nav-section" style="margin-top:8px">Temas</div>
         <div id="temas-nav"></div>
       </nav>
@@ -429,6 +638,27 @@
 </div>
 
 <div id="toast">✓ Alterações salvas</div>
+
+<!-- Barra de alterações pendentes -->
+<div class="changes-bar" id="changes-bar">
+  <span>✏️ <strong id="changes-count">0 campos</strong> alterados desde o último salvamento</span>
+  <button class="cb-salvar" onclick="salvarTema()">Salvar agora</button>
+  <button class="cb-descartar" onclick="descartarAlteracoes()">Descartar</button>
+</div>
+
+<!-- Modal de pré-visualização -->
+<div class="modal-overlay" id="preview-modal" style="display:none" onclick="fecharPreview(event)">
+  <div class="modal-box">
+    <div class="modal-header">
+      <div>
+        <h4 id="preview-title">Pré-visualização</h4>
+        <p id="preview-subtitle">Como o bloco aparece no site</p>
+      </div>
+      <button class="modal-close" onclick="fecharPreviewBtn()">✕</button>
+    </div>
+    <div class="modal-body" id="preview-body"></div>
+  </div>
+</div>
 
 <script>
 // ── TEMA ───────────────────────────────────────────────────────────
@@ -465,6 +695,7 @@ function doLogin() {
   const u = document.getElementById('login-user').value.trim();
   const p = document.getElementById('login-pass').value;
   if (USUARIOS[u] && USUARIOS[u] === p) {
+    usuarioAtual = u;
     document.getElementById('login-screen').style.display = 'none';
     document.getElementById('app').style.display = 'block';
     carregarDados();
@@ -479,6 +710,7 @@ document.addEventListener('keydown', e => {
 
 function doLogout() {
   DATA = null;
+  usuarioAtual = '';
   document.getElementById('login-screen').style.display = 'flex';
   document.getElementById('app').style.display = 'none';
   document.getElementById('login-user').value = '';
@@ -493,20 +725,105 @@ async function carregarDados() {
     DATA = await res.json();
     montarNav();
     showSection('dashboard');
+    atualizarBadge();
   } catch(e) {
     alert('Erro ao carregar conteudo.json. Verifique se está na mesma pasta.');
   }
 }
 
+// ── ANÁLISE DE SAÚDE DOS TEMAS ─────────────────────────────────────
+const MESES_LIMITE = 6;
+const MESES_PTBR = {
+  'jan':0,'fev':1,'mar':2,'abr':3,'mai':4,'maio':4,'jun':5,
+  'jul':6,'ago':7,'set':8,'out':9,'nov':10,'dez':11
+};
+
+function parsearData(str) {
+  if (!str) return null;
+  const parts = str.toLowerCase().trim().split(/[\s\/\-]+/);
+  // formatos: "Abr 2026", "Mai 2026", "04/2026", "2026-04"
+  let mes = null, ano = null;
+  for (const p of parts) {
+    if (MESES_PTBR[p] !== undefined) mes = MESES_PTBR[p];
+    else if (/^\d{4}$/.test(p)) ano = parseInt(p);
+    else if (/^\d{1,2}$/.test(p) && parseInt(p) <= 12) mes = parseInt(p) - 1;
+  }
+  if (ano === null) return null;
+  if (mes === null) mes = 0;
+  return new Date(ano, mes, 1);
+}
+
+function analisarTema(t) {
+  const alertas = [];
+  let pontos = 0, total = 0;
+
+  // Campos obrigatórios
+  const campos = [
+    { key: 'nome', label: 'nome' },
+    { key: 'desc', label: 'descrição' },
+    { key: 'icone', label: 'ícone' },
+    { key: 'responsavel', label: 'responsável' },
+    { key: 'atualizacao', label: 'data de atualização' },
+  ];
+  campos.forEach(c => {
+    total++;
+    if (t[c.key] && t[c.key].trim()) pontos++;
+    else alertas.push(`Sem ${c.label}`);
+  });
+
+  // Tags
+  total++;
+  if (t.tags && t.tags.length > 0) pontos++;
+  else alertas.push('Sem tags');
+
+  // Legislação
+  total++;
+  if (t.legislacao && t.legislacao.length > 0) pontos++;
+  else alertas.push('Sem legislação');
+
+  // Seções com conteúdo
+  total++;
+  if (t.secoes && t.secoes.length > 0 && t.secoes.some(s => s.conteudo.length > 0)) pontos++;
+  else alertas.push('Sem conteúdo');
+
+  const completude = Math.round((pontos / total) * 100);
+
+  // Verificar desatualização
+  let desatualizado = false;
+  const dataAtual = parsearData(t.atualizacao);
+  if (!dataAtual) {
+    desatualizado = true;
+    if (!alertas.includes('Sem data de atualização')) alertas.push('Data de atualização inválida');
+  } else {
+    const hoje = new Date();
+    const mesesDiff = (hoje.getFullYear() - dataAtual.getFullYear()) * 12
+                    + (hoje.getMonth() - dataAtual.getMonth());
+    if (mesesDiff >= MESES_LIMITE) {
+      desatualizado = true;
+      alertas.push(`Não atualizado há ${mesesDiff} meses`);
+    }
+  }
+
+  return { completude, desatualizado, alertas };
+}
+
 // ── NAV ────────────────────────────────────────────────────────────
 function montarNav() {
   const nav = document.getElementById('temas-nav');
-  nav.innerHTML = DATA.temas.map(t => `
-    <div class="nav-item" id="nav-${t.id}" onclick="editarTema('${t.id}')">
-      <span class="num">${String(t.num).padStart(2,'0')}</span>
-      <span>${t.nome}</span>
-    </div>
-  `).join('');
+  nav.innerHTML = DATA.temas.map(t => {
+    const saude = analisarTema(t);
+    const warn = saude.desatualizado || saude.completude < 50;
+    const icon = saude.desatualizado && saude.completude < 50 ? '🔴'
+               : saude.desatualizado ? '🟡'
+               : saude.completude < 50 ? '🟠' : '';
+    return `
+      <div class="nav-item" id="nav-${t.id}" onclick="editarTema('${t.id}')">
+        <span class="num">${String(t.num).padStart(2,'0')}</span>
+        <span style="flex:1">${t.nome}</span>
+        ${icon ? `<span class="nav-warn" title="${saude.alertas.join(' · ')}">${icon}</span>` : ''}
+      </div>
+    `;
+  }).join('');
 }
 
 function filtrarNav(txt) {
@@ -524,6 +841,7 @@ function setActive(id) {
 function showSection(nome) {
   secaoAtual = nome;
   temaAtual = null;
+  pararRastreamento();
   const body = document.getElementById('main-body');
   const title = document.getElementById('main-title');
   const sub = document.getElementById('main-subtitle');
@@ -555,6 +873,21 @@ function showSection(nome) {
     body.innerHTML = renderFaq();
     actions.innerHTML = `<button class="btn btn-primary" onclick="addFaq()">+ Adicionar</button>
                          <button class="btn btn-success" onclick="salvarFaq()">Salvar</button>`;
+  } else if (nome === 'busca') {
+    setActive(null);
+    title.textContent = 'Buscar no Conteúdo';
+    sub.textContent = 'Pesquise dentro dos textos de todos os temas';
+    body.innerHTML = renderBusca('');
+    setTimeout(() => document.getElementById('busca-inp')?.focus(), 50);
+  } else if (nome === 'historico') {
+    setActive('nav-historico');
+    title.textContent = 'Histórico de Edições';
+    sub.textContent = 'Registro local das alterações feitas neste navegador';
+    const hist = carregarHistorico();
+    actions.innerHTML = hist.length > 0
+      ? `<button class="btn btn-danger" onclick="limparHistorico()">Limpar histórico</button>`
+      : '';
+    body.innerHTML = renderHistorico();
   }
 }
 
@@ -562,13 +895,65 @@ function showSection(nome) {
 function renderDashboard() {
   const totalBlocos = DATA.temas.reduce((acc, t) => acc + t.secoes.reduce((a2, s) => a2 + s.conteudo.length, 0), 0);
   const totalSecoes = DATA.temas.reduce((acc, t) => acc + t.secoes.length, 0);
+  const hist = carregarHistorico();
+
+  // Análise de saúde
+  const analises = DATA.temas.map(t => ({ t, s: analisarTema(t) }));
+  const desatualizados = analises.filter(a => a.s.desatualizado);
+  const incompletos = analises.filter(a => a.s.completude < 100);
+  const criticos = analises.filter(a => a.s.desatualizado && a.s.completude < 50);
+
+  const histHtml = hist.length === 0
+    ? `<div class="hist-empty">Nenhuma edição registrada ainda.</div>`
+    : hist.slice(0, 4).map(h => renderHistItem(h)).join('') +
+      (hist.length > 4 ? `<div style="text-align:center;margin-top:8px"><button class="hist-clear-btn" onclick="showSection('historico')">Ver todas (${hist.length})</button></div>` : '');
+
+  const alertasHtml = desatualizados.length === 0 && incompletos.filter(a=>a.s.completude<50).length === 0
+    ? `<div class="hist-empty" style="padding:16px">✅ Todos os temas estão atualizados e completos.</div>`
+    : [...criticos, ...desatualizados.filter(a=>!criticos.includes(a)), ...incompletos.filter(a=>a.s.completude<50&&!criticos.includes(a)&&!desatualizados.includes(a))]
+        .slice(0, 6)
+        .map(({t, s}) => `
+          <div class="alerta-card" onclick="editarTema('${t.id}')">
+            <div class="ac-icon">${t.icone || '📄'}</div>
+            <div>
+              <div class="ac-nome">${t.nome}</div>
+              <div class="ac-detalhe">${s.alertas.join(' · ')}</div>
+              <div class="completude-bar-wrap" style="width:160px;margin-top:6px">
+                <div class="completude-bar-bg">
+                  <div class="completude-bar-fill ${s.completude>=80?'fill-green':s.completude>=50?'fill-yellow':'fill-red'}"
+                       style="width:${s.completude}%"></div>
+                </div>
+              </div>
+            </div>
+            <span class="ac-badge ${s.completude>=80?'badge-ok':s.completude>=50?'badge-warn':'badge-error'}">${s.completude}% completo</span>
+          </div>
+        `).join('');
+
   return `
     <div class="dashboard-grid">
       <div class="stat-card"><div class="num">${DATA.temas.length}</div><div class="label">Temas no manual</div></div>
       <div class="stat-card"><div class="num">${totalSecoes}</div><div class="label">Seções no total</div></div>
       <div class="stat-card"><div class="num">${totalBlocos}</div><div class="label">Blocos de conteúdo</div></div>
     </div>
-    <div class="section-title">Últimas atualizações registradas</div>
+
+    <div class="diag-grid">
+      <div class="diag-card ${desatualizados.length>0?'dc-warn':'dc-ok'}">
+        <div class="dc-num">${desatualizados.length}</div>
+        <div class="dc-label">Temas desatualizados <span style="color:var(--text3)">(+6 meses)</span></div>
+      </div>
+      <div class="diag-card ${criticos.length>0?'dc-red':incompletos.filter(a=>a.s.completude<80).length>0?'dc-warn':'dc-ok'}">
+        <div class="dc-num">${incompletos.filter(a=>a.s.completude<80).length}</div>
+        <div class="dc-label">Temas com campos incompletos</div>
+      </div>
+    </div>
+
+    <div class="section-title" style="margin-bottom:12px">⚠️ Temas que precisam de atenção</div>
+    ${alertasHtml}
+
+    <div class="section-title" style="margin-top:28px;margin-bottom:16px">📋 Últimas edições no painel</div>
+    ${histHtml}
+
+    <div class="section-title" style="margin-top:28px;margin-bottom:16px">📡 Atualizações publicadas no manual</div>
     <div class="recent-list">
       ${DATA.atualizacoes.map(a => `
         <div class="recent-item">
@@ -625,6 +1010,7 @@ function salvarSiteConfig() {
   DATA.site.edicao = document.getElementById('sc-edicao').value;
   DATA.site.ultima_atualizacao = document.getElementById('sc-atualizacao').value;
   mostrarDownload();
+  registrarEvento('config', 'Configurações do site salvas', `Edição: ${DATA.site.edicao} · Atualização: ${DATA.site.ultima_atualizacao}`);
   showToast('Configurações salvas!');
 }
 
@@ -672,6 +1058,7 @@ function salvarAtualizacoes() {
     texto: document.getElementById(`atu-texto-${i}`)?.value || ''
   }));
   mostrarDownload();
+  registrarEvento('atu', 'Atualizações recentes salvas', `${DATA.atualizacoes.length} atualizações na home`);
   showToast('Atualizações salvas!');
 }
 
@@ -717,6 +1104,7 @@ function salvarFaq() {
     tema_id: document.getElementById(`faq-tema-${i}`)?.value || ''
   }));
   mostrarDownload();
+  registrarEvento('faq', 'Perguntas frequentes salvas', `${DATA.faq_home.length} perguntas na home`);
   showToast('FAQ salvo!');
 }
 
@@ -741,13 +1129,38 @@ function editarTema(id) {
       this.classList.toggle('collapsed', collapsed);
     });
   });
+  setTimeout(() => iniciarRastreamento(), 100);
 }
 
 function renderEditorTema(t) {
+  const saude = analisarTema(t);
+  const corBarra = saude.completude >= 80 ? 'fill-green' : saude.completude >= 50 ? 'fill-yellow' : 'fill-red';
+  const alertasHtml = saude.alertas.length > 0
+    ? `<div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:10px">
+        ${saude.alertas.map(a => `<span class="tag ${saude.desatualizado&&a.includes('meses')?'badge-warn':'badge-error'}" style="padding:3px 8px">${a}</span>`).join('')}
+       </div>` : '';
+
   return `
     <div id="download-bar" class="download-bar">
       <p>📥 Há alterações não exportadas. Clique em <span>Exportar JSON</span> para baixar o arquivo atualizado.</p>
       <button class="btn btn-primary" onclick="exportarJSON()">Exportar JSON</button>
+    </div>
+
+    <!-- Barra de saúde -->
+    <div class="editor-section" style="margin-bottom:20px">
+      <div class="editor-section-body" style="padding:16px 20px">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+          <span style="font-size:13px;font-weight:600;color:var(--text)">Completude do tema</span>
+          <span class="ac-badge ${saude.completude>=80?'badge-ok':saude.completude>=50?'badge-warn':'badge-error'}"
+                style="padding:3px 10px;border-radius:20px;font-size:12px;font-weight:600">
+            ${saude.completude}%
+          </span>
+        </div>
+        <div class="completude-bar-bg" style="height:6px">
+          <div class="completude-bar-fill ${corBarra}" style="width:${saude.completude}%"></div>
+        </div>
+        ${alertasHtml}
+      </div>
     </div>
 
     <!-- Metadados -->
@@ -804,7 +1217,12 @@ function renderEditorTema(t) {
     <div class="editor-section">
       <div class="editor-section-header">
         <h4>⚖️ Legislação — ${(t.legislacao||[]).length} normas</h4>
-        <span class="toggle">▾</span>
+        <div style="display:flex;align-items:center;gap:8px">
+          <button class="validar-links-btn" id="btn-validar" onclick="validarLinks(event)">
+            🔗 Verificar links
+          </button>
+          <span class="toggle">▾</span>
+        </div>
       </div>
       <div class="editor-section-body" id="leg-container">
         ${(t.legislacao||[]).map((l,li) => renderLeg(l,li)).join('')}
@@ -847,6 +1265,7 @@ function renderBloco(b, si, bi) {
     <div class="bloco-header">
       <span class="bloco-tipo ${tipoClass}">${tipoLabel}</span>
       <div class="bloco-actions">
+        <button onclick="previewBloco(${si},${bi})" title="Pré-visualizar">👁</button>
         <button onclick="moverBloco(${si},${bi},-1)">↑</button>
         <button onclick="moverBloco(${si},${bi},1)">↓</button>
         <button class="del" onclick="removerBloco(${si},${bi})">✕</button>
@@ -1010,7 +1429,7 @@ function rerenderLeg() {
 
 function renderLeg(l, li) {
   return `
-    <div class="leg-item">
+    <div class="leg-item" id="leg-item-${li}">
       <div class="field-row-3" style="margin-bottom:8px">
         <div>
           <div class="bloco-sublabel">Tipo</div>
@@ -1030,7 +1449,11 @@ function renderLeg(l, li) {
       <div class="bloco-sublabel">Descrição</div>
       <input class="field-input" id="leg-desc-${li}" value="${l.desc||''}" style="margin-bottom:6px">
       <div class="bloco-sublabel">Link</div>
-      <input class="field-input" id="leg-link-${li}" value="${l.link||''}" placeholder="https://...">
+      <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+        <input class="field-input" id="leg-link-${li}" value="${l.link||''}" placeholder="https://..." style="flex:1;min-width:200px">
+        ${l.link ? `<a href="${l.link}" target="_blank" rel="noopener" style="font-size:11px;color:var(--accent);flex-shrink:0">↗ abrir</a>` : ''}
+      </div>
+      <div id="leg-status-${li}"></div>
     </div>
   `;
 }
@@ -1063,7 +1486,137 @@ function salvarTema() {
   }
 
   mostrarDownload();
+  registrarEvento('tema', `Tema salvo: ${temaAtual.nome}`, `${temaAtual.secoes.length} seções · ${temaAtual.secoes.reduce((a,s)=>a+s.conteudo.length,0)} blocos`);
   showToast('Tema salvo! Exporte o JSON para aplicar.');
+  // Resetar snapshot para refletir o estado salvo
+  setTimeout(() => { _snapshotOriginal = capturarSnapshot(); verificarAlteracoes(); }, 100);
+}
+
+// ── VALIDADOR DE LINKS ─────────────────────────────────────────────
+async function validarLinks(e) {
+  e.stopPropagation();
+  const legs = temaAtual.legislacao || [];
+  const comLink = legs.filter(l => l.link && l.link.startsWith('http'));
+
+  if (comLink.length === 0) {
+    showToast('Nenhum link para verificar.');
+    return;
+  }
+
+  const btn = document.getElementById('btn-validar');
+  btn.disabled = true;
+  btn.innerHTML = '⏳ Verificando...';
+
+  // Marcar todos como verificando
+  legs.forEach((l, li) => {
+    if (l.link) {
+      const el = document.getElementById(`leg-status-${li}`);
+      if (el) el.innerHTML = `<span class="link-status link-verificando">⏳ Verificando...</span>`;
+    }
+  });
+
+  // Verificar cada link usando um proxy de imagem (técnica sem CORS)
+  const resultados = await Promise.allSettled(
+    legs.map((l, li) => verificarLink(l.link, li))
+  );
+
+  // Resumo
+  const ok = resultados.filter(r => r.status === 'fulfilled' && r.value === 'ok').length;
+  const erros = resultados.filter(r => r.status === 'fulfilled' && r.value === 'erro').length;
+  const avisos = resultados.filter(r => r.status === 'fulfilled' && r.value === 'aviso').length;
+
+  btn.disabled = false;
+  btn.innerHTML = `🔗 Verificar links`;
+  registrarEvento('config', `Links verificados: ${temaAtual.nome}`,
+    `✅ ${ok} ok · ⚠️ ${avisos} sem link · ❌ ${erros} com problema`);
+  showToast(`Verificação concluída: ${ok} ok, ${erros} com problema, ${avisos} sem link.`);
+}
+
+async function verificarLink(url, li) {
+  const statusEl = document.getElementById(`leg-status-${li}`);
+  if (!url || !url.startsWith('http')) {
+    if (statusEl) statusEl.innerHTML = `<span class="link-status link-aviso">⚠️ Sem link cadastrado</span>`;
+    return 'aviso';
+  }
+
+  try {
+    // Tenta via fetch com no-cors — se a URL for inválida, vai rejeitar
+    // Se retornar opaque response, consideramos acessível
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 8000);
+    await fetch(url, { method: 'HEAD', mode: 'no-cors', signal: controller.signal });
+    clearTimeout(timeout);
+    if (statusEl) statusEl.innerHTML = `<span class="link-status link-ok">✅ Link acessível</span>`;
+    return 'ok';
+  } catch(err) {
+    const msg = err.name === 'AbortError' ? '⏱ Tempo esgotado' : '❌ Link inacessível ou inválido';
+    if (statusEl) statusEl.innerHTML = `<span class="link-status link-erro">${msg}</span>
+      <div style="font-size:11px;color:var(--text3);margin-top:3px">Verifique se a URL está correta ou se o site está no ar.</div>`;
+    return 'erro';
+  }
+}
+
+// ── RASTREAMENTO DE ALTERAÇÕES ─────────────────────────────────────
+let _snapshotOriginal = null;
+let _watcherInterval = null;
+
+function iniciarRastreamento() {
+  _snapshotOriginal = capturarSnapshot();
+  clearInterval(_watcherInterval);
+  _watcherInterval = setInterval(verificarAlteracoes, 1500);
+}
+
+function pararRastreamento() {
+  clearInterval(_watcherInterval);
+  _watcherInterval = null;
+  _snapshotOriginal = null;
+  document.getElementById('changes-bar').classList.remove('show');
+}
+
+function capturarSnapshot() {
+  // Captura todos os valores dos inputs/textareas do editor atual
+  const snap = {};
+  document.querySelectorAll('.main-body input[id], .main-body textarea[id], .main-body select[id]')
+    .forEach(el => { snap[el.id] = el.value; });
+  return snap;
+}
+
+function verificarAlteracoes() {
+  if (!_snapshotOriginal) return;
+  const atual = capturarSnapshot();
+  const alterados = [];
+
+  Object.keys(atual).forEach(id => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    if (atual[id] !== (_snapshotOriginal[id] ?? '')) {
+      alterados.push(id);
+      el.classList.add('alterado');
+      // Atualizar label se existir
+      const label = el.closest('.field-group')?.querySelector('.field-label');
+      if (label && !label.querySelector('.campo-alterado-badge')) {
+        label.insertAdjacentHTML('beforeend', '<span class="campo-alterado-badge">editado</span>');
+      }
+    } else {
+      el.classList.remove('alterado');
+      el.closest('.field-group')?.querySelector('.campo-alterado-badge')?.remove();
+    }
+  });
+
+  const bar = document.getElementById('changes-bar');
+  const count = document.getElementById('changes-count');
+  if (alterados.length > 0) {
+    count.textContent = `${alterados.length} campo${alterados.length !== 1 ? 's' : ''}`;
+    bar.classList.add('show');
+  } else {
+    bar.classList.remove('show');
+  }
+}
+
+function descartarAlteracoes() {
+  if (!confirm('Descartar todas as alterações não salvas?')) return;
+  pararRastreamento();
+  editarTema(temaAtual.id); // Recarrega o tema do DATA original
 }
 
 // ── EXPORTAR JSON ──────────────────────────────────────────────────
@@ -1081,7 +1634,227 @@ function exportarJSON() {
   a.download = 'conteudo.json';
   a.click();
   URL.revokeObjectURL(url);
+  registrarEvento('export', 'JSON exportado', `conteudo.json · ${(JSON.stringify(DATA).length/1024).toFixed(0)} KB`);
   showToast('JSON exportado! Suba no GitHub.');
+}
+
+// ── BUSCA DE CONTEÚDO ──────────────────────────────────────────────
+function renderBusca(query) {
+  return `
+    <div class="busca-input-wrap">
+      <input type="text" id="busca-inp" placeholder="Buscar em todos os temas... ex: licitação, prazo, decreto"
+             value="${query}" oninput="executarBusca(this.value)">
+    </div>
+    <div id="busca-resultados">${query ? gerarResultados(query) : `<div class="busca-empty">Digite algo para buscar no conteúdo do manual.</div>`}</div>
+  `;
+}
+
+function executarBusca(q) {
+  document.getElementById('busca-resultados').innerHTML = q.trim().length < 2
+    ? `<div class="busca-empty">Digite ao menos 2 caracteres.</div>`
+    : gerarResultados(q.trim());
+}
+
+function destacar(texto, q) {
+  if (!texto || !q) return texto || '';
+  const re = new RegExp(`(${q.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')})`, 'gi');
+  return texto.replace(re, '<mark>$1</mark>');
+}
+
+function extrairTextoBloco(b) {
+  if (b.tipo === 'texto' || b.tipo === 'subtitulo') return b.valor || '';
+  if (b.tipo === 'info' || b.tipo === 'atencao') return `${b.titulo || ''} ${b.texto || ''}`;
+  if (b.tipo === 'lista') return (b.itens || []).join(' ');
+  if (b.tipo === 'tabela') return [...(b.cabecalho||[]), ...(b.linhas||[]).flat()].join(' ');
+  return '';
+}
+
+function gerarResultados(q) {
+  const resultados = [];
+  DATA.temas.forEach(t => {
+    // Busca no nome e desc do tema
+    if (t.nome.toLowerCase().includes(q.toLowerCase()) || (t.desc||'').toLowerCase().includes(q.toLowerCase())) {
+      resultados.push({ tema: t, secao: null, bloco: null, trecho: destacar(t.desc || t.nome, q) });
+    }
+    t.secoes.forEach(s => {
+      // Busca no título da seção
+      if ((s.titulo||'').toLowerCase().includes(q.toLowerCase())) {
+        resultados.push({ tema: t, secao: s, bloco: null, trecho: destacar(s.titulo, q) });
+      }
+      s.conteudo.forEach(b => {
+        const txt = extrairTextoBloco(b);
+        if (txt.toLowerCase().includes(q.toLowerCase())) {
+          // Recortar trecho ao redor da ocorrência
+          const idx = txt.toLowerCase().indexOf(q.toLowerCase());
+          const inicio = Math.max(0, idx - 60);
+          const fim = Math.min(txt.length, idx + q.length + 80);
+          const trecho = (inicio > 0 ? '…' : '') + txt.slice(inicio, fim) + (fim < txt.length ? '…' : '');
+          resultados.push({ tema: t, secao: s, bloco: b, trecho: destacar(trecho, q) });
+        }
+      });
+    });
+  });
+
+  if (resultados.length === 0) {
+    return `<div class="busca-empty">Nenhum resultado encontrado para "<strong>${q}</strong>".</div>`;
+  }
+
+  const stats = `<div class="busca-stats">${resultados.length} resultado${resultados.length !== 1 ? 's' : ''} para "<strong>${q}</strong>"</div>`;
+  const lista = resultados.map(r => `
+    <div class="busca-result" onclick="editarTema('${r.tema.id}')">
+      <div class="busca-result-header">
+        <span>${r.tema.icone || '📄'}</span>
+        <span class="br-tema">${r.tema.nome}</span>
+        ${r.secao ? `<span class="br-secao">› ${r.secao.titulo}</span>` : ''}
+        ${r.bloco ? `<span class="br-tipo"><span class="bloco-tipo tipo-${r.bloco.tipo}">${r.bloco.tipo.toUpperCase()}</span></span>` : ''}
+      </div>
+      <div class="busca-result-body">${r.trecho}</div>
+    </div>
+  `).join('');
+
+  return stats + lista;
+}
+
+// ── PRÉ-VISUALIZAÇÃO ───────────────────────────────────────────────
+function previewBloco(si, bi) {
+  // Ler valores atuais da UI antes de mostrar
+  lerBlocos();
+  const b = temaAtual.secoes[si].conteudo[bi];
+  const secaoTitulo = temaAtual.secoes[si].titulo;
+
+  document.getElementById('preview-title').textContent = `Pré-visualização — ${b.tipo.toUpperCase()}`;
+  document.getElementById('preview-subtitle').textContent = `Seção: ${secaoTitulo}`;
+  document.getElementById('preview-body').innerHTML = renderPreviewBloco(b);
+  document.getElementById('preview-modal').style.display = 'flex';
+}
+
+function renderPreviewBloco(b) {
+  switch(b.tipo) {
+    case 'texto':
+      return `<div class="prev-bloco prev-texto">${(b.valor||'').replace(/\n/g,'<br>')}</div>`;
+    case 'subtitulo':
+      return `<div class="prev-bloco prev-subtitulo">${b.valor||''}</div>`;
+    case 'info':
+      return `<div class="prev-bloco prev-info">
+        <strong>ℹ️ ${b.titulo||''}</strong>
+        <p>${(b.texto||'').replace(/\n/g,'<br>')}</p>
+      </div>`;
+    case 'atencao':
+      return `<div class="prev-bloco prev-atencao">
+        <strong>⚠️ ${b.titulo||''}</strong>
+        <p>${(b.texto||'').replace(/\n/g,'<br>')}</p>
+      </div>`;
+    case 'lista':
+      return `<div class="prev-bloco">
+        <ul class="prev-lista">
+          ${(b.itens||[]).map(i => `<li>${i}</li>`).join('')}
+        </ul>
+      </div>`;
+    case 'tabela':
+      return `<div class="prev-bloco" style="overflow-x:auto">
+        <table class="prev-tabela">
+          <thead><tr>${(b.cabecalho||[]).map(h=>`<th>${h}</th>`).join('')}</tr></thead>
+          <tbody>${(b.linhas||[]).map(row=>`<tr>${row.map(c=>`<td>${c}</td>`).join('')}</tr>`).join('')}</tbody>
+        </table>
+      </div>`;
+    default:
+      return `<div class="prev-texto">${JSON.stringify(b)}</div>`;
+  }
+}
+
+function fecharPreview(e) {
+  if (e.target === document.getElementById('preview-modal')) fecharPreviewBtn();
+}
+function fecharPreviewBtn() {
+  document.getElementById('preview-modal').style.display = 'none';
+}
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') fecharPreviewBtn();
+});
+
+// ── HISTÓRICO DE EDIÇÕES ───────────────────────────────────────────
+const HIST_KEY = 'cage-admin-historico';
+const HIST_MAX = 50;
+let usuarioAtual = '';
+
+function registrarEvento(tipo, acao, detalhe) {
+  const hist = carregarHistorico();
+  hist.unshift({
+    id: Date.now(),
+    tipo,       // 'tema' | 'config' | 'atu' | 'faq' | 'export'
+    acao,       // ex: "Tema salvo"
+    detalhe,    // ex: "Diárias"
+    usuario: usuarioAtual,
+    quando: new Date().toISOString()
+  });
+  localStorage.setItem(HIST_KEY, JSON.stringify(hist.slice(0, HIST_MAX)));
+  atualizarBadge();
+}
+
+function carregarHistorico() {
+  try { return JSON.parse(localStorage.getItem(HIST_KEY) || '[]'); }
+  catch { return []; }
+}
+
+function atualizarBadge() {
+  const hist = carregarHistorico();
+  const badge = document.getElementById('hist-badge');
+  if (!badge) return;
+  if (hist.length > 0) {
+    badge.style.display = '';
+    badge.textContent = hist.length > 99 ? '99+' : hist.length;
+  } else {
+    badge.style.display = 'none';
+  }
+}
+
+function formatarQuando(iso) {
+  const d = new Date(iso);
+  const hoje = new Date();
+  const diff = Math.floor((hoje - d) / 1000);
+  if (diff < 60) return 'agora mesmo';
+  if (diff < 3600) return `há ${Math.floor(diff/60)} min`;
+  if (diff < 86400) return `há ${Math.floor(diff/3600)}h`;
+  if (diff < 172800) return 'ontem às ' + d.toLocaleTimeString('pt-BR', {hour:'2-digit',minute:'2-digit'});
+  return d.toLocaleDateString('pt-BR', {day:'2-digit',month:'2-digit',year:'numeric'}) +
+    ' às ' + d.toLocaleTimeString('pt-BR', {hour:'2-digit',minute:'2-digit'});
+}
+
+const HIST_ICONS = { tema: '📝', config: '⚙️', atu: '📡', faq: '❓', export: '📥' };
+
+function renderHistItem(h) {
+  return `
+    <div class="hist-item">
+      <div class="hist-icon ${h.tipo}">${HIST_ICONS[h.tipo] || '📋'}</div>
+      <div class="hist-info">
+        <div class="hi-acao">${h.acao}</div>
+        <div class="hi-detalhe">${h.detalhe}</div>
+        <div class="hi-quando">
+          ${h.usuario ? `<strong>${h.usuario}</strong> · ` : ''}${formatarQuando(h.quando)}
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function renderHistorico() {
+  const hist = carregarHistorico();
+  if (hist.length === 0) {
+    return `<div class="hist-empty">
+      <div style="font-size:32px;margin-bottom:12px">📋</div>
+      <div>Nenhuma edição registrada ainda.</div>
+      <div style="font-size:12px;margin-top:6px;color:var(--text3)">As edições aparecem aqui conforme você salva e exporta.</div>
+    </div>`;
+  }
+  return `<div>${hist.map(h => renderHistItem(h)).join('')}</div>`;
+}
+
+function limparHistorico() {
+  if (!confirm('Limpar todo o histórico de edições?')) return;
+  localStorage.removeItem(HIST_KEY);
+  atualizarBadge();
+  showSection('historico');
+  showToast('Histórico limpo.');
 }
 
 // ── TOAST ──────────────────────────────────────────────────────────
