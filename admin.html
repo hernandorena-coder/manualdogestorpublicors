@@ -1323,7 +1323,13 @@ async function salvarFaq() {
 }
 
 // ── EDITOR DE TEMA ─────────────────────────────────────────────────
-function editarTema(id) {
+async function editarTema(id) {
+  // Buscar conteúdo atualizado do Supabase
+  const conteudoSupa = await carregarConteudoTema(id);
+  const idxLocal = DATA.temas.findIndex(t => t.id === id);
+  if (conteudoSupa && idxLocal >= 0) {
+    DATA.temas[idxLocal] = { ...conteudoSupa, _status: DATA.temas[idxLocal]._status };
+  }
   temaAtual = DATA.temas.find(t => t.id === id);
   secaoAtual = 'tema';
   setActive(`nav-${id}`);
