@@ -1054,6 +1054,7 @@ async function showSection(nome) {
     setActive(null);
     title.textContent = 'Dashboard';
     sub.textContent = 'Visão geral do manual';
+    actions.innerHTML = `<button class="migrar-btn" id="btn-migrar" onclick="migrarConteudoParaSupabase()">📦 Migrar conteúdo</button>`;
     body.innerHTML = renderDashboard();
   } else if (nome === 'site-config') {
     setActive(null);
