@@ -621,6 +621,43 @@
   .tour-skip { font-size: 12px; color: var(--text3); cursor: pointer; background: none; border: none; font-family: 'Sora', sans-serif; }
   .tour-skip:hover { color: var(--text2); }
 
+  /* Versões anteriores */
+  .versoes-panel {
+    background: var(--bg); border: 1px solid var(--border);
+    border-radius: var(--radius); margin-top: 12px; overflow: hidden;
+  }
+  .versao-item {
+    padding: 12px 16px; display: flex; align-items: center; gap: 12px;
+    border-bottom: 1px solid var(--border); transition: background .15s;
+  }
+  .versao-item:last-child { border-bottom: none; }
+  .versao-item:hover { background: var(--surface2); }
+  .versao-num {
+    width: 28px; height: 28px; border-radius: 50%; flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 11px; font-weight: 700; background: var(--surface2); color: var(--text2);
+  }
+  .versao-num.v1 { background: rgba(79,124,255,.15); color: var(--accent); }
+  .versao-info { flex: 1; }
+  .versao-info .vi-data { font-size: 12px; font-weight: 600; color: var(--text); }
+  .versao-info .vi-usuario { font-size: 11px; color: var(--text2); margin-top: 2px; }
+  .versao-restaurar {
+    padding: 5px 12px; border-radius: 6px; border: 1px solid var(--border);
+    background: transparent; color: var(--text2); font-family: 'Sora', sans-serif;
+    font-size: 11px; cursor: pointer; transition: all .2s;
+  }
+  .versao-restaurar:hover { border-color: var(--accent); color: var(--accent); }
+
+  /* Botão de migração */
+  .migrar-btn {
+    padding: 10px 18px; border-radius: 8px; border: 1px solid var(--accent);
+    background: rgba(79,124,255,.1); color: var(--accent);
+    font-family: 'Sora', sans-serif; font-size: 13px; font-weight: 600;
+    cursor: pointer; transition: all .2s; display: flex; align-items: center; gap: 8px;
+  }
+  .migrar-btn:hover { background: rgba(79,124,255,.2); }
+  .migrar-btn:disabled { opacity: .5; cursor: not-allowed; }
+
   /* Scrollbar */
   ::-webkit-scrollbar { width: 6px; }
   ::-webkit-scrollbar-track { background: transparent; }
@@ -853,11 +890,14 @@ async function carregarDados() {
     Promise.all([
       carregarTodasNotas(),
       carregarHistorico(),
-      carregarTodosStatus()
-    ]).then(() => {
-      // Atualizar nav com status carregados do Supabase
+      carregarTodosStatus(),
+      carregarTodoConteudoSupabase()
+    ]).then(([,,, temMigracao]) => {
+      // Atualizar nav com status e conteúdo do Supabase
       montarNav();
       atualizarBadge();
+      // Se não houver conteúdo no Supabase, mostrar botão de migração no dashboard
+      if (!temMigracao) showSection('dashboard');
     }).catch(e => console.warn('Supabase indisponível — usando dados locais:', e));
   } catch(e) {
     alert('Erro ao carregar conteudo.json. Verifique se está na mesma pasta.');
@@ -1092,7 +1132,17 @@ function renderDashboard() {
           </div>
         `).join('');
 
-  return `
+  const temConteudoSupabase = Object.keys(_notasCache).length > 0 || _historicoCache.length > 0;
+  const migracaoHtml = !temConteudoSupabase ? `
+    <div style="background:rgba(79,124,255,.08);border:1px solid rgba(79,124,255,.25);border-radius:var(--radius);padding:16px 20px;margin-bottom:24px;display:flex;align-items:center;justify-content:space-between;gap:12px">
+      <div>
+        <div style="font-size:13px;font-weight:600;color:var(--text);margin-bottom:4px">📦 Migrar conteúdo para o Supabase</div>
+        <div style="font-size:12px;color:var(--text2)">Primeira vez? Migre o conteúdo atual para que a equipe possa editar colaborativamente.</div>
+      </div>
+      <button class="migrar-btn" id="btn-migrar" onclick="migrarConteudoParaSupabase()">🚀 Migrar agora</button>
+    </div>` : '';
+
+  return `${migracaoHtml}
     <div class="dashboard-grid">
       <div class="stat-card"><div class="num">${DATA.temas.length}</div><div class="label">Temas no manual</div></div>
       <div class="stat-card"><div class="num">${totalSecoes}</div><div class="label">Seções no total</div></div>
@@ -1292,7 +1342,14 @@ function editarTema(id) {
       this.classList.toggle('collapsed', collapsed);
     });
   });
-  setTimeout(() => iniciarRastreamento(), 100);
+  setTimeout(() => {
+    iniciarRastreamento();
+    // Carregar versões em background
+    renderVersoesPanel(temaAtual.id).then(html => {
+      const el = document.getElementById('versoes-container');
+      if (el) el.innerHTML = html;
+    });
+  }, 100);
 }
 
 function renderEditorTema(t) {
@@ -1409,6 +1466,17 @@ function renderEditorTema(t) {
       <div class="editor-section-body" id="leg-container">
         ${(t.legislacao||[]).map((l,li) => renderLeg(l,li)).join('')}
         <button class="add-item-btn" onclick="addLeg()">+ Adicionar norma</button>
+      </div>
+    </div>
+
+    <!-- Versões exportadas -->
+    <div class="editor-section">
+      <div class="editor-section-header">
+        <h4>🕒 Versões exportadas</h4>
+        <span class="toggle">▾</span>
+      </div>
+      <div class="editor-section-body" id="versoes-container">
+        <div class="hist-empty" style="padding:12px;font-size:12px">⏳ Carregando versões...</div>
       </div>
     </div>
   `;
@@ -1676,8 +1744,10 @@ async function salvarTema() {
   }
 
   mostrarDownload();
-  registrarEvento('tema', `Tema salvo: ${temaAtual.nome}`, `${temaAtual.secoes.length} seções · ${temaAtual.secoes.reduce((a,s)=>a+s.conteudo.length,0)} blocos`);
-  showToast('Tema salvo! Exporte o JSON para aplicar.');
+  // Salvar conteúdo do tema no Supabase (rascunho)
+  await salvarConteudoTema(temaAtual);
+  await registrarEvento('tema', `Tema salvo: ${temaAtual.nome}`, `${temaAtual.secoes.length} seções · ${temaAtual.secoes.reduce((a,s)=>a+s.conteudo.length,0)} blocos`);
+  showToast('Tema salvo! Outros usuários já podem ver as alterações.');
   // Resetar snapshot para refletir o estado salvo
   setTimeout(() => { _snapshotOriginal = capturarSnapshot(); verificarAlteracoes(); }, 100);
 }
@@ -1809,14 +1879,137 @@ function descartarAlteracoes() {
   editarTema(temaAtual.id); // Recarrega o tema do DATA original
 }
 
+// ── CONTEÚDO DOS TEMAS NO SUPABASE ────────────────────────────────
+async function salvarConteudoTema(tema) {
+  const payload = {
+    tema_id: tema.id,
+    conteudo: tema,
+    usuario: usuarioAtual
+  };
+  await supaFetch('temas_conteudo', 'POST', payload);
+}
+
+async function carregarConteudoTema(temaId) {
+  const data = await supaFetch('temas_conteudo', 'GET', null, `?tema_id=eq.${temaId}`);
+  return data?.[0]?.conteudo || null;
+}
+
+async function carregarTodoConteudoSupabase() {
+  const data = await supaFetch('temas_conteudo', 'GET', null, '');
+  if (!data || data.length === 0) return false;
+  // Substituir temas do DATA pelo conteúdo do Supabase
+  data.forEach(row => {
+    const idx = DATA.temas.findIndex(t => t.id === row.tema_id);
+    if (idx >= 0) DATA.temas[idx] = { ...row.conteudo, _status: DATA.temas[idx]._status };
+  });
+  return true;
+}
+
+async function migrarConteudoParaSupabase() {
+  const btn = document.getElementById('btn-migrar');
+  if (btn) { btn.disabled = true; btn.textContent = '⏳ Migrando...'; }
+  let ok = 0;
+  for (const tema of DATA.temas) {
+    await salvarConteudoTema(tema);
+    ok++;
+  }
+  if (btn) { btn.disabled = false; btn.innerHTML = '✅ Migração concluída'; }
+  await registrarEvento('config', 'Conteúdo migrado para Supabase', `${ok} temas`);
+  showToast(`${ok} temas migrados com sucesso!`);
+}
+
+// ── VERSÕES EXPORTADAS ─────────────────────────────────────────────
+const MAX_VERSOES = 3;
+
+async function arquivarVersao(temaId, conteudo) {
+  // Buscar versões existentes
+  const versoes = await supaFetch('temas_versoes', 'GET', null,
+    `?tema_id=eq.${temaId}&order=versao.desc&limit=${MAX_VERSOES}`);
+
+  const proxVersao = versoes && versoes.length > 0 ? versoes[0].versao + 1 : 1;
+
+  // Inserir nova versão
+  await supaFetch('temas_versoes', 'POST', {
+    tema_id: temaId,
+    versao: proxVersao,
+    conteudo,
+    usuario: usuarioAtual
+  });
+
+  // Remover versões mais antigas se passar do limite
+  if (versoes && versoes.length >= MAX_VERSOES) {
+    const maisAntiga = versoes[versoes.length - 1];
+    await supaFetch('temas_versoes', 'DELETE', null,
+      `?tema_id=eq.${temaId}&versao=eq.${maisAntiga.versao}`);
+  }
+}
+
+async function carregarVersoes(temaId) {
+  const data = await supaFetch('temas_versoes', 'GET', null,
+    `?tema_id=eq.${temaId}&order=versao.desc&limit=${MAX_VERSOES}`);
+  return data || [];
+}
+
+async function restaurarVersao(temaId, versaoNum) {
+  if (!confirm(`Restaurar a versão ${versaoNum}? O rascunho atual será substituído.`)) return;
+  const versoes = await carregarVersoes(temaId);
+  const versao = versoes.find(v => v.versao === versaoNum);
+  if (!versao) { showToast('Versão não encontrada.'); return; }
+
+  // Salvar como rascunho atual
+  await supaFetch('temas_conteudo', 'POST', {
+    tema_id: temaId,
+    conteudo: versao.conteudo,
+    usuario: usuarioAtual
+  });
+
+  // Atualizar DATA local
+  const idx = DATA.temas.findIndex(t => t.id === temaId);
+  if (idx >= 0) DATA.temas[idx] = { ...versao.conteudo, _status: DATA.temas[idx]._status };
+
+  await registrarEvento('tema', `Versão ${versaoNum} restaurada: ${temaId}`, `Restaurado por ${usuarioAtual}`);
+  showToast(`Versão ${versaoNum} restaurada!`);
+  editarTema(temaId);
+}
+
+async function renderVersoesPanel(temaId) {
+  const versoes = await carregarVersoes(temaId);
+  if (versoes.length === 0) {
+    return `<div class="hist-empty" style="padding:16px;font-size:12px">Nenhuma versão exportada ainda.<br>As versões são criadas ao exportar o JSON.</div>`;
+  }
+  return `<div class="versoes-panel">
+    ${versoes.map(v => `
+      <div class="versao-item">
+        <div class="versao-num ${v.versao === versoes[0].versao ? 'v1' : ''}">v${v.versao}</div>
+        <div class="versao-info">
+          <div class="vi-data">Exportado em ${formatarQuando(v.criado_em)}</div>
+          <div class="vi-usuario">${v.usuario || 'sistema'}</div>
+        </div>
+        <button class="versao-restaurar" onclick="restaurarVersao('${temaId}', ${v.versao})">
+          Restaurar
+        </button>
+      </div>
+    `).join('')}
+  </div>`;
+}
+
 // ── EXPORTAR JSON ──────────────────────────────────────────────────
 function mostrarDownload() {
   const bar = document.getElementById('download-bar');
   if (bar) bar.classList.add('show');
 }
 
-function exportarJSON() {
-  const json = JSON.stringify(DATA, null, 2);
+async function exportarJSON() {
+  // Arquivar versão de cada tema que tem conteúdo no Supabase
+  showToast('Arquivando versões...');
+  for (const tema of DATA.temas) {
+    await arquivarVersao(tema.id, tema);
+  }
+  // Gerar JSON a partir do DATA atual (que inclui edições do Supabase)
+  const exportData = JSON.parse(JSON.stringify(DATA));
+  // Remover campos internos que não devem ir para o site
+  exportData.temas.forEach(t => { delete t._status; });
+  const json = JSON.stringify(exportData, null, 2);
   const blob = new Blob([json], { type: 'application/json' });
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
@@ -1824,8 +2017,9 @@ function exportarJSON() {
   a.download = 'conteudo.json';
   a.click();
   URL.revokeObjectURL(url);
-  registrarEvento('export', 'JSON exportado', `conteudo.json · ${(JSON.stringify(DATA).length/1024).toFixed(0)} KB`);
-  showToast('JSON exportado! Suba no GitHub.');
+  await registrarEvento('export', 'JSON exportado e versões arquivadas',
+    `conteudo.json · ${(json.length/1024).toFixed(0)} KB · ${DATA.temas.length} temas`);
+  showToast('JSON exportado! Versões arquivadas no Supabase. Suba no GitHub.');
 }
 
 // ── BUSCA DE CONTEÚDO ──────────────────────────────────────────────
