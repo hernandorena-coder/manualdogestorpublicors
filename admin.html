@@ -844,16 +844,21 @@ async function carregarDados() {
   try {
     const res = await fetch('conteudo.json');
     DATA = await res.json();
-    // Carregar dados compartilhados do Supabase
-    await Promise.all([
-      carregarTodasNotas(),
-      carregarHistorico(),
-      carregarTodosStatus()
-    ]);
+    // Montar nav imediatamente com o JSON — não depende do Supabase
     montarNav();
     showSection('dashboard');
     atualizarBadge();
     verificarTour();
+    // Carregar dados do Supabase em paralelo, sem bloquear
+    Promise.all([
+      carregarTodasNotas(),
+      carregarHistorico(),
+      carregarTodosStatus()
+    ]).then(() => {
+      // Atualizar nav com status carregados do Supabase
+      montarNav();
+      atualizarBadge();
+    }).catch(e => console.warn('Supabase indisponível — usando dados locais:', e));
   } catch(e) {
     alert('Erro ao carregar conteudo.json. Verifique se está na mesma pasta.');
   }
