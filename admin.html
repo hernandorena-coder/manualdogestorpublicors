@@ -547,6 +547,80 @@
     font-size: 12px; cursor: pointer;
   }
 
+  /* Status editorial */
+  .status-badge {
+    display: inline-flex; align-items: center; gap: 4px;
+    padding: 2px 8px; border-radius: 20px; font-size: 10px; font-weight: 700;
+    letter-spacing: .3px; flex-shrink: 0;
+  }
+  .status-aprovado { background: rgba(34,197,94,.15); color: var(--green); }
+  .status-revisao { background: rgba(79,124,255,.15); color: var(--accent); }
+  .status-desatualizado { background: rgba(245,158,11,.15); color: var(--yellow); }
+  .status-rascunho { background: rgba(139,145,168,.1); color: var(--text3); }
+  .status-select {
+    padding: 8px 12px; background: var(--bg); border: 1px solid var(--border);
+    border-radius: 8px; color: var(--text); font-family: 'Sora', sans-serif;
+    font-size: 13px; cursor: pointer; width: 100%;
+  }
+  .filtro-status {
+    display: flex; gap: 6px; padding: 8px 16px 4px; flex-wrap: wrap;
+  }
+  .filtro-status-btn {
+    padding: 3px 10px; border-radius: 20px; border: 1px solid var(--border);
+    background: transparent; color: var(--text3); font-family: 'Sora', sans-serif;
+    font-size: 10px; font-weight: 600; cursor: pointer; transition: all .15s;
+  }
+  .filtro-status-btn.ativo { border-color: var(--accent); color: var(--accent); background: rgba(79,124,255,.1); }
+
+  /* Notas internas */
+  .notas-section {
+    background: rgba(124,92,252,.06); border: 1px solid rgba(124,92,252,.2);
+    border-radius: var(--radius); padding: 16px 20px; margin-bottom: 20px;
+  }
+  .notas-header { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
+  .notas-header h4 { font-size: 13px; font-weight: 600; color: var(--accent2); }
+  .notas-header span { font-size: 11px; color: var(--text3); }
+  .notas-textarea {
+    width: 100%; min-height: 90px; padding: 10px 12px;
+    background: var(--bg); border: 1px solid rgba(124,92,252,.25);
+    border-radius: 8px; color: var(--text); font-family: 'Sora', sans-serif;
+    font-size: 13px; line-height: 1.6; resize: vertical;
+  }
+  .notas-textarea:focus { outline: none; border-color: var(--accent2); }
+  .notas-meta { font-size: 11px; color: var(--text3); margin-top: 6px; }
+
+  /* Tour guiado */
+  .tour-overlay {
+    position: fixed; inset: 0; z-index: 900;
+    pointer-events: none;
+  }
+  .tour-backdrop {
+    position: fixed; inset: 0; background: rgba(0,0,0,.6);
+    z-index: 901; pointer-events: all;
+  }
+  .tour-highlight {
+    position: fixed; z-index: 902; border-radius: 8px;
+    box-shadow: 0 0 0 4px var(--accent), 0 0 0 9999px rgba(0,0,0,.6);
+    pointer-events: none; transition: all .35s ease;
+  }
+  .tour-popup {
+    position: fixed; z-index: 903; pointer-events: all;
+    background: var(--surface); border: 1px solid var(--accent);
+    border-radius: 12px; padding: 20px 24px; width: 320px;
+    box-shadow: 0 16px 48px rgba(0,0,0,.5);
+    transition: all .35s ease;
+  }
+  .tour-popup .tp-step { font-size: 10px; font-weight: 700; color: var(--accent); letter-spacing: 1px; text-transform: uppercase; margin-bottom: 8px; }
+  .tour-popup h4 { font-size: 15px; font-weight: 700; color: var(--text); margin-bottom: 8px; }
+  .tour-popup p { font-size: 13px; color: var(--text2); line-height: 1.6; }
+  .tour-actions { display: flex; align-items: center; justify-content: space-between; margin-top: 16px; }
+  .tour-progress { display: flex; gap: 4px; }
+  .tour-dot { width: 6px; height: 6px; border-radius: 3px; background: var(--border); transition: all .2s; }
+  .tour-dot.ativo { background: var(--accent); width: 16px; }
+  .tour-next { padding: 8px 16px; border-radius: 6px; border: none; background: var(--accent); color: #fff; font-family: 'Sora', sans-serif; font-size: 13px; font-weight: 600; cursor: pointer; }
+  .tour-skip { font-size: 12px; color: var(--text3); cursor: pointer; background: none; border: none; font-family: 'Sora', sans-serif; }
+  .tour-skip:hover { color: var(--text2); }
+
   /* Scrollbar */
   ::-webkit-scrollbar { width: 6px; }
   ::-webkit-scrollbar-track { background: transparent; }
@@ -610,6 +684,13 @@
           <span>📋</span><span>Histórico de Edições</span><span class="hist-badge" id="hist-badge" style="display:none">0</span>
         </div>
         <div class="nav-section" style="margin-top:8px">Temas</div>
+        <div class="filtro-status" id="filtro-status">
+          <button class="filtro-status-btn ativo" onclick="filtrarStatus('todos',this)">Todos</button>
+          <button class="filtro-status-btn" onclick="filtrarStatus('aprovado',this)">✅ Aprovado</button>
+          <button class="filtro-status-btn" onclick="filtrarStatus('revisao',this)">🔵 Revisão</button>
+          <button class="filtro-status-btn" onclick="filtrarStatus('desatualizado',this)">🟡 Desatualizado</button>
+          <button class="filtro-status-btn" onclick="filtrarStatus('rascunho',this)">⬜ Rascunho</button>
+        </div>
         <div id="temas-nav"></div>
       </nav>
       <div class="sidebar-footer">
@@ -617,6 +698,7 @@
           <span id="theme-label">🌙 Tema escuro</span>
           <button class="theme-toggle-btn" onclick="alternarTema()" id="theme-btn">☀️ Claro</button>
         </div>
+        <button class="logout-btn" style="margin-bottom:6px" onclick="iniciarTour()">🗺️ Ver tour guiado</button>
         <button class="logout-btn" onclick="doLogout()">Sair</button>
       </div>
     </aside>
@@ -644,6 +726,24 @@
   <span>✏️ <strong id="changes-count">0 campos</strong> alterados desde o último salvamento</span>
   <button class="cb-salvar" onclick="salvarTema()">Salvar agora</button>
   <button class="cb-descartar" onclick="descartarAlteracoes()">Descartar</button>
+</div>
+
+<!-- Tour guiado -->
+<div id="tour-overlay" style="display:none">
+  <div class="tour-backdrop" onclick="pularTour()"></div>
+  <div class="tour-highlight" id="tour-highlight"></div>
+  <div class="tour-popup" id="tour-popup">
+    <div class="tp-step" id="tour-step-label">Passo 1 de 7</div>
+    <h4 id="tour-titulo"></h4>
+    <p id="tour-texto"></p>
+    <div class="tour-actions">
+      <button class="tour-skip" onclick="pularTour()">Pular tour</button>
+      <div style="display:flex;align-items:center;gap:12px">
+        <div class="tour-progress" id="tour-dots"></div>
+        <button class="tour-next" id="tour-next-btn" onclick="proximoPasso()">Próximo →</button>
+      </div>
+    </div>
+  </div>
 </div>
 
 <!-- Modal de pré-visualização -->
@@ -676,6 +776,27 @@ function carregarTema() {
     document.getElementById('theme-label').textContent = '☀️ Tema claro';
     document.getElementById('theme-btn').textContent = '🌙 Escuro';
   }
+}
+
+// ── SUPABASE ───────────────────────────────────────────────────────
+const SUPA_URL = 'https://diuxtotpxsydceufxdi.supabase.co';
+const SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRpdXh0b3R4cHhzeWRjZXVmeGRpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg1MTE3NzYsImV4cCI6MjA5NDA4Nzc3Nn0.awY-G0R7GxCPZAhYV_dFzxqdVLKmE2vWDnm85BEXF3k';
+
+async function supaFetch(tabela, metodo = 'GET', body = null, filtro = '') {
+  const url = `${SUPA_URL}/rest/v1/${tabela}${filtro}`;
+  const opts = {
+    method: metodo,
+    headers: {
+      'apikey': SUPA_KEY,
+      'Authorization': `Bearer ${SUPA_KEY}`,
+      'Content-Type': 'application/json',
+      'Prefer': metodo === 'POST' ? 'resolution=merge-duplicates,return=representation' : 'return=representation'
+    }
+  };
+  if (body) opts.body = JSON.stringify(body);
+  const res = await fetch(url, opts);
+  if (!res.ok) { console.error('Supabase error:', await res.text()); return null; }
+  return metodo === 'DELETE' ? null : res.json();
 }
 
 // ── CREDENCIAIS ───────────────────────────────────────────────────
@@ -723,12 +844,38 @@ async function carregarDados() {
   try {
     const res = await fetch('conteudo.json');
     DATA = await res.json();
+    // Carregar dados compartilhados do Supabase
+    await Promise.all([
+      carregarTodasNotas(),
+      carregarHistorico(),
+      carregarTodosStatus()
+    ]);
     montarNav();
     showSection('dashboard');
     atualizarBadge();
+    verificarTour();
   } catch(e) {
     alert('Erro ao carregar conteudo.json. Verifique se está na mesma pasta.');
   }
+}
+
+// ── STATUS NO SUPABASE ─────────────────────────────────────────────
+let _statusCache = {};
+
+async function carregarTodosStatus() {
+  const data = await supaFetch('status_temas', 'GET', null, '');
+  _statusCache = {};
+  (data || []).forEach(s => { _statusCache[s.tema_id] = s; });
+  // Aplicar status carregados nos temas
+  if (DATA) DATA.temas.forEach(t => {
+    if (_statusCache[t.id]) t._status = _statusCache[t.id].status;
+  });
+}
+
+async function salvarStatus(temaId, status) {
+  const payload = { tema_id: temaId, status, usuario: usuarioAtual };
+  _statusCache[temaId] = { ...payload, atualizado_em: new Date().toISOString() };
+  await supaFetch('status_temas', 'POST', payload);
 }
 
 // ── ANÁLISE DE SAÚDE DOS TEMAS ─────────────────────────────────────
@@ -809,21 +956,31 @@ function analisarTema(t) {
 
 // ── NAV ────────────────────────────────────────────────────────────
 function montarNav() {
+  const STATUS_ICON = { aprovado:'✅', revisao:'🔵', desatualizado:'🟡', rascunho:'⬜' };
   const nav = document.getElementById('temas-nav');
   nav.innerHTML = DATA.temas.map(t => {
     const saude = analisarTema(t);
-    const warn = saude.desatualizado || saude.completude < 50;
-    const icon = saude.desatualizado && saude.completude < 50 ? '🔴'
-               : saude.desatualizado ? '🟡'
-               : saude.completude < 50 ? '🟠' : '';
+    const status = t._status || 'rascunho';
+    const warnIcon = saude.desatualizado && saude.completude < 50 ? '🔴'
+                   : saude.desatualizado ? '🟡'
+                   : saude.completude < 50 ? '🟠' : '';
     return `
-      <div class="nav-item" id="nav-${t.id}" onclick="editarTema('${t.id}')">
+      <div class="nav-item" id="nav-${t.id}" data-status="${status}" onclick="editarTema('${t.id}')">
         <span class="num">${String(t.num).padStart(2,'0')}</span>
         <span style="flex:1">${t.nome}</span>
-        ${icon ? `<span class="nav-warn" title="${saude.alertas.join(' · ')}">${icon}</span>` : ''}
+        <span title="Status: ${status}" style="font-size:12px">${STATUS_ICON[status]}</span>
+        ${warnIcon ? `<span class="nav-warn" title="${saude.alertas.join(' · ')}">${warnIcon}</span>` : ''}
       </div>
     `;
   }).join('');
+}
+
+function filtrarStatus(status, btn) {
+  document.querySelectorAll('.filtro-status-btn').forEach(b => b.classList.remove('ativo'));
+  btn.classList.add('ativo');
+  document.querySelectorAll('#temas-nav .nav-item').forEach(el => {
+    el.style.display = status === 'todos' || el.dataset.status === status ? '' : 'none';
+  });
 }
 
 function filtrarNav(txt) {
@@ -838,7 +995,7 @@ function setActive(id) {
 }
 
 // ── SEÇÕES ─────────────────────────────────────────────────────────
-function showSection(nome) {
+async function showSection(nome) {
   secaoAtual = nome;
   temaAtual = null;
   pararRastreamento();
@@ -882,12 +1039,13 @@ function showSection(nome) {
   } else if (nome === 'historico') {
     setActive('nav-historico');
     title.textContent = 'Histórico de Edições';
-    sub.textContent = 'Registro local das alterações feitas neste navegador';
-    const hist = carregarHistorico();
-    actions.innerHTML = hist.length > 0
-      ? `<button class="btn btn-danger" onclick="limparHistorico()">Limpar histórico</button>`
-      : '';
-    body.innerHTML = renderHistorico();
+    sub.textContent = 'Registro compartilhado das alterações da equipe';
+    body.innerHTML = `<div class="hist-empty">⏳ Carregando histórico...</div>`;
+    const html = await renderHistorico();
+    const hist = _historicoCache;
+    document.getElementById('header-actions').innerHTML = hist.length > 0
+      ? `<button class="btn btn-danger" onclick="limparHistorico()">Limpar histórico</button>` : '';
+    body.innerHTML = html;
   }
 }
 
@@ -895,7 +1053,7 @@ function showSection(nome) {
 function renderDashboard() {
   const totalBlocos = DATA.temas.reduce((acc, t) => acc + t.secoes.reduce((a2, s) => a2 + s.conteudo.length, 0), 0);
   const totalSecoes = DATA.temas.reduce((acc, t) => acc + t.secoes.length, 0);
-  const hist = carregarHistorico();
+  const hist = _historicoCache;
 
   // Análise de saúde
   const analises = DATA.temas.map(t => ({ t, s: analisarTema(t) }));
@@ -1004,7 +1162,7 @@ function renderSiteConfig() {
   `;
 }
 
-function salvarSiteConfig() {
+async function salvarSiteConfig() {
   DATA.site.titulo = document.getElementById('sc-titulo').value;
   DATA.site.subtitulo = document.getElementById('sc-subtitulo').value;
   DATA.site.edicao = document.getElementById('sc-edicao').value;
@@ -1051,7 +1209,7 @@ function removerAtu(i) {
   }
 }
 
-function salvarAtualizacoes() {
+async function salvarAtualizacoes() {
   DATA.atualizacoes = DATA.atualizacoes.map((_, i) => ({
     data: document.getElementById(`atu-data-${i}`)?.value || '',
     tema: document.getElementById(`atu-tema-${i}`)?.value || '',
@@ -1098,7 +1256,7 @@ function removerFaq(i) {
   }
 }
 
-function salvarFaq() {
+async function salvarFaq() {
   DATA.faq_home = DATA.faq_home.map((_,i) => ({
     pergunta: document.getElementById(`faq-perg-${i}`)?.value || '',
     tema_id: document.getElementById(`faq-tema-${i}`)?.value || ''
@@ -1194,11 +1352,30 @@ function renderEditorTema(t) {
             <input class="field-input" id="meta-responsavel" value="${t.responsavel || ''}">
           </div>
         </div>
-        <div class="field-group">
-          <div class="field-label">Tags (separadas por vírgula)</div>
-          <input class="field-input" id="meta-tags" value="${(t.tags||[]).join(', ')}">
+        <div class="field-row">
+          <div class="field-group">
+            <div class="field-label">Tags (separadas por vírgula)</div>
+            <input class="field-input" id="meta-tags" value="${(t.tags||[]).join(', ')}">
+          </div>
+          <div class="field-group">
+            <div class="field-label">Status editorial</div>
+            <select class="status-select field-input" id="meta-status">
+              ${[['rascunho','⬜ Rascunho'],['revisao','🔵 Em revisão'],['aprovado','✅ Aprovado'],['desatualizado','🟡 Desatualizado']]
+                .map(([v,l]) => `<option value="${v}" ${(t._status||'rascunho')===v?'selected':''}>${l}</option>`).join('')}
+            </select>
+          </div>
         </div>
       </div>
+    </div>
+
+    <!-- Notas internas -->
+    <div class="notas-section">
+      <div class="notas-header">
+        <h4>🗒️ Notas internas</h4>
+        <span>Visível apenas no painel — não publicado no site</span>
+      </div>
+      <textarea class="notas-textarea" id="meta-notas" placeholder="Observações para a equipe: pendências, decisões editoriais, contexto de revisão...">${lerNotasTema(t.id)}</textarea>
+      <div class="notas-meta" id="notas-meta">${getNotasMeta(t.id)}</div>
     </div>
 
     <!-- Seções de conteúdo -->
@@ -1465,7 +1642,7 @@ function removerLeg(li) {
 }
 
 // ── SALVAR TEMA ────────────────────────────────────────────────────
-function salvarTema() {
+async function salvarTema() {
   lerBlocos();
   temaAtual.nome = document.getElementById('meta-nome')?.value || temaAtual.nome;
   temaAtual.icone = document.getElementById('meta-icone')?.value || temaAtual.icone;
@@ -1474,6 +1651,14 @@ function salvarTema() {
   temaAtual.responsavel = document.getElementById('meta-responsavel')?.value || temaAtual.responsavel;
   const tagsRaw = document.getElementById('meta-tags')?.value || '';
   temaAtual.tags = tagsRaw.split(',').map(t => t.trim()).filter(Boolean);
+  temaAtual._status = document.getElementById('meta-status')?.value || 'rascunho';
+  // Persistir status no Supabase
+  await salvarStatus(temaAtual.id, temaAtual._status);
+  // Salvar notas no Supabase
+  await salvarNotasTema(temaAtual.id, document.getElementById('meta-notas')?.value || '');
+
+  // Atualizar nav para refletir novo status
+  montarNav();
 
   // Legislação
   if (temaAtual.legislacao) {
@@ -1773,39 +1958,33 @@ document.addEventListener('keydown', e => {
 });
 
 // ── HISTÓRICO DE EDIÇÕES ───────────────────────────────────────────
-const HIST_KEY = 'cage-admin-historico';
 const HIST_MAX = 50;
 let usuarioAtual = '';
+let _historicoCache = [];
 
-function registrarEvento(tipo, acao, detalhe) {
-  const hist = carregarHistorico();
-  hist.unshift({
-    id: Date.now(),
-    tipo,       // 'tema' | 'config' | 'atu' | 'faq' | 'export'
-    acao,       // ex: "Tema salvo"
-    detalhe,    // ex: "Diárias"
-    usuario: usuarioAtual,
-    quando: new Date().toISOString()
-  });
-  localStorage.setItem(HIST_KEY, JSON.stringify(hist.slice(0, HIST_MAX)));
+async function registrarEvento(tipo, acao, detalhe) {
+  const evento = { tipo, acao, detalhe, usuario: usuarioAtual };
+  // Otimista: adiciona ao cache local imediatamente
+  _historicoCache.unshift({ ...evento, criado_em: new Date().toISOString() });
   atualizarBadge();
+  // Persiste no Supabase
+  await supaFetch('historico_edicoes', 'POST', evento);
 }
 
-function carregarHistorico() {
-  try { return JSON.parse(localStorage.getItem(HIST_KEY) || '[]'); }
-  catch { return []; }
+async function carregarHistorico() {
+  const data = await supaFetch('historico_edicoes', 'GET', null,
+    `?order=criado_em.desc&limit=${HIST_MAX}`);
+  _historicoCache = data || [];
+  atualizarBadge();
+  return _historicoCache;
 }
 
 function atualizarBadge() {
-  const hist = carregarHistorico();
   const badge = document.getElementById('hist-badge');
   if (!badge) return;
-  if (hist.length > 0) {
-    badge.style.display = '';
-    badge.textContent = hist.length > 99 ? '99+' : hist.length;
-  } else {
-    badge.style.display = 'none';
-  }
+  const n = _historicoCache.length;
+  badge.style.display = n > 0 ? '' : 'none';
+  badge.textContent = n > 99 ? '99+' : n;
 }
 
 function formatarQuando(iso) {
@@ -1830,15 +2009,15 @@ function renderHistItem(h) {
         <div class="hi-acao">${h.acao}</div>
         <div class="hi-detalhe">${h.detalhe}</div>
         <div class="hi-quando">
-          ${h.usuario ? `<strong>${h.usuario}</strong> · ` : ''}${formatarQuando(h.quando)}
+          ${h.usuario ? `<strong>${h.usuario}</strong> · ` : ''}${formatarQuando(h.criado_em || h.quando)}
         </div>
       </div>
     </div>
   `;
 }
 
-function renderHistorico() {
-  const hist = carregarHistorico();
+async function renderHistorico() {
+  const hist = await carregarHistorico();
   if (hist.length === 0) {
     return `<div class="hist-empty">
       <div style="font-size:32px;margin-bottom:12px">📋</div>
@@ -1849,12 +2028,147 @@ function renderHistorico() {
   return `<div>${hist.map(h => renderHistItem(h)).join('')}</div>`;
 }
 
-function limparHistorico() {
-  if (!confirm('Limpar todo o histórico de edições?')) return;
-  localStorage.removeItem(HIST_KEY);
+async function limparHistorico() {
+  if (!confirm('Limpar todo o histórico de edições? Esta ação afeta todos os usuários.')) return;
+  await supaFetch('historico_edicoes', 'DELETE', null, `?id=gte.0`);
+  _historicoCache = [];
   atualizarBadge();
   showSection('historico');
   showToast('Histórico limpo.');
+}
+
+// ── NOTAS INTERNAS ─────────────────────────────────────────────────
+let _notasCache = {};
+
+async function carregarTodasNotas() {
+  const data = await supaFetch('notas_internas', 'GET', null, '');
+  _notasCache = {};
+  (data || []).forEach(n => { _notasCache[n.tema_id] = n; });
+}
+
+function lerNotasTema(id) {
+  return _notasCache[id]?.nota || '';
+}
+
+function getNotasMeta(id) {
+  const n = _notasCache[id];
+  if (!n || !n.nota) return '';
+  const d = new Date(n.atualizado_em);
+  return `Última nota: ${n.usuario} · ${d.toLocaleDateString('pt-BR')} às ${d.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'})}`;
+}
+
+async function salvarNotasTema(id, texto) {
+  const payload = { tema_id: id, nota: texto, usuario: usuarioAtual };
+  _notasCache[id] = { ...payload, atualizado_em: new Date().toISOString() };
+  await supaFetch('notas_internas', 'POST', payload);
+}
+
+// ── TOUR GUIADO ────────────────────────────────────────────────────
+const TOUR_KEY = 'cage-admin-tour-visto';
+let tourPasso = 0;
+
+const TOUR_PASSOS = [
+  {
+    titulo: 'Bem-vindo ao Painel de Edição! 👋',
+    texto: 'Este é o painel de administração do Manual do Gestor Público da CAGE RS. Vamos fazer um tour rápido para você conhecer as principais funcionalidades.',
+    alvo: null,
+    pos: 'center'
+  },
+  {
+    titulo: 'Dashboard',
+    texto: 'A tela inicial mostra um diagnóstico geral do manual: temas desatualizados, campos incompletos e um histórico das últimas edições realizadas.',
+    alvo: () => document.querySelector('.nav-item[onclick*="dashboard"]'),
+    pos: 'right'
+  },
+  {
+    titulo: 'Filtro por status',
+    texto: 'Filtre os temas da sidebar por status editorial: Aprovado, Em Revisão, Desatualizado ou Rascunho. Útil para priorizar o trabalho da equipe.',
+    alvo: () => document.getElementById('filtro-status'),
+    pos: 'right'
+  },
+  {
+    titulo: 'Busca no conteúdo',
+    texto: 'Pesquise dentro do texto de todos os temas. Útil quando você sabe que uma lei está mencionada em algum lugar mas não lembra onde.',
+    alvo: () => document.querySelector('.nav-item[onclick*="busca"]'),
+    pos: 'right'
+  },
+  {
+    titulo: 'Histórico de edições',
+    texto: 'Cada vez que você salva ou exporta, o painel registra o evento com hora e usuário. O histórico fica salvo no navegador.',
+    alvo: () => document.getElementById('nav-historico'),
+    pos: 'right'
+  },
+  {
+    titulo: 'Editando um tema',
+    texto: 'Ao clicar em qualquer tema, você acessa o editor completo: metadados, status, notas internas, seções de conteúdo e legislação com validador de links.',
+    alvo: () => document.querySelector('#temas-nav .nav-item'),
+    pos: 'right'
+  },
+  {
+    titulo: 'Exportar e publicar',
+    texto: 'Após editar, clique em "Salvar tema" e depois "Exportar JSON". O arquivo gerado deve ser enviado para quem tem acesso ao GitHub para publicar no site.',
+    alvo: () => document.getElementById('header-actions'),
+    pos: 'bottom'
+  }
+];
+
+function iniciarTour() {
+  tourPasso = 0;
+  document.getElementById('tour-overlay').style.display = 'block';
+  renderPasso();
+}
+
+function renderPasso() {
+  const p = TOUR_PASSOS[tourPasso];
+  const total = TOUR_PASSOS.length;
+
+  document.getElementById('tour-step-label').textContent = `Passo ${tourPasso + 1} de ${total}`;
+  document.getElementById('tour-titulo').textContent = p.titulo;
+  document.getElementById('tour-texto').textContent = p.texto;
+  document.getElementById('tour-next-btn').textContent = tourPasso === total - 1 ? 'Concluir ✓' : 'Próximo →';
+
+  // Dots
+  document.getElementById('tour-dots').innerHTML = TOUR_PASSOS.map((_,i) =>
+    `<div class="tour-dot ${i===tourPasso?'ativo':''}"></div>`).join('');
+
+  // Posicionar highlight e popup
+  const alvo = p.alvo ? p.alvo() : null;
+  const highlight = document.getElementById('tour-highlight');
+  const popup = document.getElementById('tour-popup');
+
+  if (!alvo || p.pos === 'center') {
+    highlight.style.cssText = 'display:none';
+    popup.style.cssText = 'top:50%;left:50%;transform:translate(-50%,-50%)';
+  } else {
+    const r = alvo.getBoundingClientRect();
+    highlight.style.cssText = `display:block;top:${r.top-4}px;left:${r.left-4}px;width:${r.width+8}px;height:${r.height+8}px`;
+
+    if (p.pos === 'right') {
+      popup.style.cssText = `top:${Math.min(r.top, window.innerHeight-240)}px;left:${r.right+16}px`;
+    } else if (p.pos === 'bottom') {
+      popup.style.cssText = `top:${r.bottom+12}px;left:${Math.max(8,r.left-80)}px`;
+    }
+  }
+}
+
+function proximoPasso() {
+  if (tourPasso < TOUR_PASSOS.length - 1) {
+    tourPasso++;
+    renderPasso();
+  } else {
+    pularTour();
+  }
+}
+
+function pularTour() {
+  document.getElementById('tour-overlay').style.display = 'none';
+  localStorage.setItem(TOUR_KEY, '1');
+}
+
+function verificarTour() {
+  if (!localStorage.getItem(TOUR_KEY)) {
+    setTimeout(() => iniciarTour(), 800);
+  }
 }
 
 // ── TOAST ──────────────────────────────────────────────────────────
