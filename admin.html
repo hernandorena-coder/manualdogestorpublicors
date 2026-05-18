@@ -910,24 +910,28 @@ async function carregarDados() {
   try {
     const res = await fetch('conteudo.json');
     DATA = await res.json();
-    // Montar nav imediatamente com o JSON — não depende do Supabase
+    // Montar nav imediatamente com o JSON
     montarNav();
-    showSection('dashboard');
-    atualizarBadge();
-    verificarTour();
-    // Carregar dados do Supabase em paralelo, sem bloquear
-    Promise.all([
-      carregarTodasNotas(),
-      carregarHistorico(),
-      carregarTodosStatus(),
-      carregarTodoConteudoSupabase()
-    ]).then(([,,, temMigracao]) => {
-      // Atualizar nav com status e conteúdo do Supabase
+    // Mostrar loading enquanto Supabase carrega
+    document.getElementById('main-title').textContent = 'Carregando...';
+    document.getElementById('main-subtitle').textContent = 'Sincronizando com o banco de dados';
+    document.getElementById('main-body').innerHTML = `<div class="hist-empty">⏳ Conectando ao Supabase...</div>`;
+    // Aguardar Supabase antes de renderizar o dashboard
+    try {
+      await Promise.all([
+        carregarTodasNotas(),
+        carregarHistorico(),
+        carregarTodosStatus(),
+        carregarTodoConteudoSupabase()
+      ]);
       montarNav();
       atualizarBadge();
-      // Se não houver conteúdo no Supabase, mostrar botão de migração no dashboard
-      if (!temMigracao) showSection('dashboard');
-    }).catch(e => console.warn('Supabase indisponível — usando dados locais:', e));
+    } catch(e) {
+      console.warn('Supabase indisponível — usando dados locais:', e);
+    }
+    // Só agora renderiza o dashboard com _conteudoMigrado correto
+    showSection('dashboard');
+    verificarTour();
   } catch(e) {
     alert('Erro ao carregar conteudo.json. Verifique se está na mesma pasta.');
   }
