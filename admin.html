@@ -820,22 +820,48 @@ const SUPA_URL = 'https://diuxtotxpxsydceufxdi.supabase.co';
 const SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRpdXh0b3R4cHhzeWRjZXVmeGRpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg1MTE3NzYsImV4cCI6MjA5NDA4Nzc3Nn0.awY-G0R7GxCPZAhYV_dFzxqdVLKmE2vWDnm85BEXF3k';
 
 async function supaFetch(tabela, metodo = 'GET', body = null, filtro = '') {
-  // Tabelas com upsert por tema_id
   const upsertTables = ['status_temas', 'notas_internas', 'temas_conteudo'];
-  const useUpsert = metodo === 'POST' && upsertTables.includes(tabela);
-  const url = `${SUPA_URL}/rest/v1/${tabela}${useUpsert ? '?on_conflict=tema_id' : filtro}`;
+  const isUpsert = metodo === 'POST' && upsertTables.includes(tabela);
+
+  // Para upsert: tenta PATCH primeiro (atualizar), se não existir faz POST (inserir)
+  if (isUpsert && body?.tema_id) {
+    const temaId = body.tema_id;
+    // Verificar se já existe
+    const existing = await supaGet(tabela, `?tema_id=eq.${temaId}`);
+    if (existing && existing.length > 0) {
+      // Atualizar com PATCH
+      return supaRequest(tabela, 'PATCH', body, `?tema_id=eq.${temaId}`);
+    } else {
+      // Inserir com POST
+      return supaRequest(tabela, 'POST', body, '');
+    }
+  }
+
+  return supaRequest(tabela, metodo, body, filtro);
+}
+
+async function supaGet(tabela, filtro = '') {
+  return supaRequest(tabela, 'GET', null, filtro);
+}
+
+async function supaRequest(tabela, metodo, body, filtro) {
+  const url = `${SUPA_URL}/rest/v1/${tabela}${filtro}`;
   const opts = {
     method: metodo,
     headers: {
       'apikey': SUPA_KEY,
       'Authorization': `Bearer ${SUPA_KEY}`,
       'Content-Type': 'application/json',
-      'Prefer': metodo === 'POST' ? 'resolution=merge-duplicates,return=representation' : 'return=representation'
+      'Prefer': 'return=representation'
     }
   };
   if (body) opts.body = JSON.stringify(body);
   const res = await fetch(url, opts);
-  if (!res.ok) { console.error('Supabase error:', await res.text()); return null; }
+  if (!res.ok) {
+    const err = await res.text();
+    console.error(`Supabase error [${metodo} ${tabela}]:`, err);
+    return null;
+  }
   return metodo === 'DELETE' ? null : res.json();
 }
 
@@ -1136,7 +1162,7 @@ function renderDashboard() {
           </div>
         `).join('');
 
-  const temConteudoSupabase = Object.keys(_notasCache).length > 0 || _historicoCache.length > 0;
+  const temConteudoSupabase = _conteudoMigrado;
   const migracaoHtml = !temConteudoSupabase ? `
     <div style="background:rgba(79,124,255,.08);border:1px solid rgba(79,124,255,.25);border-radius:var(--radius);padding:16px 20px;margin-bottom:24px;display:flex;align-items:center;justify-content:space-between;gap:12px">
       <div>
@@ -1904,10 +1930,15 @@ async function carregarConteudoTema(temaId) {
   return data?.[0]?.conteudo || null;
 }
 
+let _conteudoMigrado = false;
+
 async function carregarTodoConteudoSupabase() {
   const data = await supaFetch('temas_conteudo', 'GET', null, '');
-  if (!data || data.length === 0) return false;
-  // Substituir temas do DATA pelo conteúdo do Supabase
+  if (!data || data.length === 0) {
+    _conteudoMigrado = false;
+    return false;
+  }
+  _conteudoMigrado = true;
   data.forEach(row => {
     const idx = DATA.temas.findIndex(t => t.id === row.tema_id);
     if (idx >= 0) DATA.temas[idx] = { ...row.conteudo, _status: DATA.temas[idx]._status };
