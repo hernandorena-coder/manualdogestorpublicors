@@ -760,10 +760,11 @@ let tamanhoFonteBase = 16; // tamanho padrão em pixels
 
 function ajustarFonte(direcao) {
   if (direcao === 0) {
-    tamanhoFonteBase = 16; // reset
+    tamanhoFonteBase = 16; // reset para padrão
   } else {
     tamanhoFonteBase = Math.min(22, Math.max(13, tamanhoFonteBase + direcao * 2));
   }
+  document.documentElement.style.fontSize = tamanhoFonteBase + 'px';
   document.body.style.fontSize = tamanhoFonteBase + 'px';
 }
 
@@ -847,22 +848,19 @@ function imprimirTema() {
 
     desenharRetangulo(MARGEM_ESQ, posY, LARGURA_CONTEUDO, alturaTotal, corFundo, 2);
 
-    // Ícone
-    doc.setFontSize(10);
-    doc.setFont('helvetica', 'bold');
-    doc.setTextColor(...corTextoTipo);
-    const iconeTexto = bloco.tipo === 'info' ? 'i' : bloco.tipo === 'atencao' ? '!' : bloco.tipo === 'aviso' ? '⚠' : '✔';
-    doc.text(iconeTexto, MARGEM_ESQ + 3, posY + alturaTotal / 2 + 1);
+    // Indicador lateral colorido no lugar do ícone emoji
+    const larguraIndicador = 4;
+    desenharRetangulo(MARGEM_ESQ, posY, larguraIndicador, alturaTotal, corTextoTipo, 1);
 
     // Título e texto
     doc.setFontSize(9);
     doc.setFont('helvetica', 'bold');
     doc.setTextColor(...COR_TEXTO);
     let linhaY = posY + 5;
-    textoTitulo.forEach(linha => { doc.text(linha, MARGEM_ESQ + LARGURA_ICONE, linhaY); linhaY += 4.5; });
+    textoTitulo.forEach(linha => { doc.text(linha, MARGEM_ESQ + larguraIndicador + 4, linhaY); linhaY += 4.5; });
     doc.setFont('helvetica', 'normal');
     doc.setTextColor(...COR_TEXTO_MEDIO);
-    textoCorpo.forEach(linha => { doc.text(linha, MARGEM_ESQ + LARGURA_ICONE, linhaY); linhaY += 4.5; });
+    textoCorpo.forEach(linha => { doc.text(linha, MARGEM_ESQ + larguraIndicador + 4, linhaY); linhaY += 4.5; });
     posY += alturaTotal + 3;
   }
 
@@ -893,16 +891,15 @@ function imprimirTema() {
 
     else if (bloco.tipo === 'lista' || bloco.tipo === 'lista_numerada') {
       const itens = bloco.itens || [];
-      verificarEspacoY(itens.length * 5 + 4);
       doc.setFontSize(9);
       doc.setFont('helvetica', 'normal');
       doc.setTextColor(...COR_TEXTO);
       itens.forEach((item, indice) => {
-        const prefixo = bloco.tipo === 'lista_numerada' ? `${indice + 1}.` : '•';
-        const linhas = doc.splitTextToSize(item, LARGURA_CONTEUDO - 8);
+        const prefixo = bloco.tipo === 'lista_numerada' ? `${indice + 1}.` : '-';
+        const linhas = doc.splitTextToSize(item, LARGURA_CONTEUDO - 10);
         verificarEspacoY(linhas.length * 4.3 + 2);
         doc.text(prefixo, MARGEM_ESQ + 2, posY);
-        linhas.forEach(linha => { doc.text(linha, MARGEM_ESQ + 7, posY); posY += 4.3; });
+        linhas.forEach(linha => { doc.text(linha, MARGEM_ESQ + 8, posY); posY += 4.3; });
       });
       posY += 3;
     }
@@ -959,7 +956,6 @@ function imprimirTema() {
   doc.setFontSize(9);
   doc.setFont('helvetica', 'normal');
   doc.text(`Capítulo ${tema.num} · ${tema.atualizacao}`, MARGEM_ESQ, 55);
-  doc.text(tema.icone || '', LARGURA_PAGINA - MARGEM_DIR - 15, 40);
 
   posY = 72;
 

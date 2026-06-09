@@ -344,3 +344,44 @@ footer{background:var(--azul-esc);padding:32px 28px;color:rgba(255,255,255,.5);f
   .pc-stats{gap:20px}
   .pc-contato{gap:20px}
 }
+
+/* ── Acessibilidade ──────────────────────────────────────────────
+   Estas regras são ativadas pelos botões da barra de acessibilidade.
+   .hi-c = alto contraste
+   font-size no body = controlado pelo JS (ajustarFonte)
+*/
+
+/* Tamanho de fonte responsivo ao body — usa em em vez de px fixo */
+body { font-size: 16px; }
+body p, body li, body td, body .tc-ds, body .faq-q, body .faq-r,
+body .ri-trecho, body .box-bd p, body .pt-desc { font-size: 1em; }
+
+/* Alto contraste */
+body.hi-c {
+  background: #000 !important;
+  color: #fff !important;
+}
+body.hi-c a { color: #ffff00 !important; }
+body.hi-c .tc, body.hi-c .ri, body.hi-c .faq-i,
+body.hi-c .sec, body.hi-c .box, body.hi-c .lg-c {
+  background: #111 !important;
+  border-color: #fff !important;
+  color: #fff !important;
+}
+body.hi-c .tc-nm, body.hi-c .tc-ds, body.hi-c p,
+body.hi-c h1, body.hi-c h2, body.hi-c h3, body.hi-c h4,
+body.hi-c li, body.hi-c td, body.hi-c th {
+  color: #fff !important;
+}
+body.hi-c .header, body.hi-c footer {
+  background: #000 !important;
+  border-color: #fff !important;
+}
+body.hi-c .hero { background: #000 !important; }
+body.hi-c .btn-ac.on, body.hi-c #btn-hc {
+  background: #ffff00 !important;
+  color: #000 !important;
+  border-color: #ffff00 !important;
+}
+body.hi-c .sec-num { background: #ffff00 !important; color: #000 !important; }
+body.hi-c mark { background: #ffff00 !important; color: #000 !important; }
