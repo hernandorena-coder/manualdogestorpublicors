@@ -95,7 +95,6 @@ function criarCardTema(tema) {
   const card = document.createElement('div');
   card.className = 'tc' + (tema.destaque ? ' dest' : '');
   card.innerHTML = `
-    <div class="tc-n">Cap. ${tema.num}</div>
     <div class="tc-ic">${tema.icone}</div>
     <div class="tc-nm">${tema.nome}</div>
     <div class="tc-ds">${tema.desc}</div>
@@ -238,7 +237,6 @@ function abrirTema(idTema) {
 
   document.getElementById('pg-badges').innerHTML = `
     <span class="pg-b v">✔ Atualizado — ${tema.atualizacao}</span>
-    <span class="pg-b a">Capítulo ${tema.num}</span>
     ${tema.tags.includes('novo') ? '<span class="pg-b l">🆕 Novo</span>' : ''}`;
 
   // Monta a navegação lateral (sumário)
@@ -557,7 +555,7 @@ function buscar(termoBusca) {
       ? `<div class="ri-mais">+${correspondencias.length - MAXIMO_TRECHOS_POR_TEMA} ocorrência(s) neste tema</div>`
       : '';
     return `<div class="ri" onclick="abrirTema('${tema.id}')">
-      <span class="ri-tema-badge">${tema.icone} Cap. ${tema.num}</span>
+      <span class="ri-tema-badge">${tema.icone} ${tema.nome}</span>
       <h4>${nomeDestacado}</h4>
       ${trechosHtml}${maisOcorrencias}
     </div>`;
@@ -659,7 +657,6 @@ function renderizarListaTemas(filtroTexto, filtroTag) {
 function htmlItemTema(tema) {
   const tagsHtml = (tema.tags || []).map(tag => `<span class="pt-tag">${tag}</span>`).join('');
   return `<div class="pt-item" onclick="abrirTema('${tema.id}')">
-    <div class="pt-num">Cap.<br>${tema.num}</div>
     <div class="pt-ic">${tema.icone}</div>
     <div class="pt-info">
       <div class="pt-nome">${tema.nome}</div>
@@ -756,16 +753,16 @@ const initScrollSpy = iniciarScrollSpy;
 // SEÇÃO 11 — ACESSIBILIDADE
 // -----------------------------------------------------------------
 
-let tamanhoFonteBase = 16; // tamanho padrão em pixels
+let tamanhoFonteBase = 100; // percentual — 100% = 16px padrão
 
 function ajustarFonte(direcao) {
   if (direcao === 0) {
-    tamanhoFonteBase = 16; // reset para padrão
+    tamanhoFonteBase = 100; // reset para padrão
   } else {
-    tamanhoFonteBase = Math.min(22, Math.max(13, tamanhoFonteBase + direcao * 2));
+    // Cada passo = ~2px equivalente (12.5% de 16px)
+    tamanhoFonteBase = Math.min(137, Math.max(81, tamanhoFonteBase + direcao * 12.5));
   }
-  document.documentElement.style.fontSize = tamanhoFonteBase + 'px';
-  document.body.style.fontSize = tamanhoFonteBase + 'px';
+  document.documentElement.style.fontSize = tamanhoFonteBase + '%';
 }
 
 function alternarAltoContraste() {
@@ -895,11 +892,22 @@ function imprimirTema() {
       doc.setFont('helvetica', 'normal');
       doc.setTextColor(...COR_TEXTO);
       itens.forEach((item, indice) => {
+        // Limpar caracteres especiais que causam encoding issues no jsPDF
+        const textoLimpo = item
+          .replace(/[^\x00-\x7E\u00C0-\u017E]/g, ' ')
+          .replace(/\s+/g, ' ')
+          .trim();
         const prefixo = bloco.tipo === 'lista_numerada' ? `${indice + 1}.` : '-';
-        const linhas = doc.splitTextToSize(item, LARGURA_CONTEUDO - 10);
-        verificarEspacoY(linhas.length * 4.3 + 2);
+        const linhas = doc.splitTextToSize(textoLimpo, LARGURA_CONTEUDO - 10);
+        verificarEspacoY(linhas.length * 4.5 + 2);
+        doc.setFont('helvetica', 'bold');
         doc.text(prefixo, MARGEM_ESQ + 2, posY);
-        linhas.forEach(linha => { doc.text(linha, MARGEM_ESQ + 8, posY); posY += 4.3; });
+        doc.setFont('helvetica', 'normal');
+        linhas.forEach(linha => {
+          doc.text(linha, MARGEM_ESQ + 8, posY);
+          posY += 4.5;
+        });
+        posY += 1;
       });
       posY += 3;
     }
@@ -955,7 +963,7 @@ function imprimirTema() {
 
   doc.setFontSize(9);
   doc.setFont('helvetica', 'normal');
-  doc.text(`Capítulo ${tema.num} · ${tema.atualizacao}`, MARGEM_ESQ, 55);
+  doc.text(`${tema.atualizacao}`, MARGEM_ESQ, 55);
 
   posY = 72;
 
