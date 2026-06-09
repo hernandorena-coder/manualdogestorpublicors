@@ -680,6 +680,32 @@
   .perfil-editor { background: rgba(139,145,168,.1); color: var(--text3); }
   .usuario-inativo { opacity: .45; }
 
+  /* Abas de usuários */
+  .usuario-tabs {
+    display: flex; gap: 4px; margin-bottom: 16px;
+  }
+  .usuario-tab {
+    padding: 6px 16px; border-radius: 20px; border: 1px solid var(--border);
+    background: transparent; color: var(--text2); font-family: 'Sora', sans-serif;
+    font-size: 12px; font-weight: 600; cursor: pointer; transition: all .15s;
+  }
+  .usuario-tab.ativo { background: var(--accent); border-color: var(--accent); color: #fff; }
+
+  /* Modal de senha */
+  .senha-modal-overlay {
+    position: fixed; inset: 0; background: rgba(0,0,0,.6);
+    display: flex; align-items: center; justify-content: center;
+    z-index: 600; backdrop-filter: blur(4px);
+  }
+  .senha-modal-box {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 12px; padding: 28px 32px; width: 380px;
+    box-shadow: 0 16px 48px rgba(0,0,0,.4);
+  }
+  .senha-modal-box h4 { font-size: 15px; font-weight: 700; color: var(--text); margin-bottom: 4px; }
+  .senha-modal-box p { font-size: 12px; color: var(--text2); margin-bottom: 20px; }
+  .senha-modal-actions { display: flex; gap: 8px; margin-top: 16px; justify-content: flex-end; }
+
   /* Scrollbar */
   ::-webkit-scrollbar { width: 6px; }
   ::-webkit-scrollbar-track { background: transparent; }
@@ -804,6 +830,26 @@
         <div class="tour-progress" id="tour-dots"></div>
         <button class="tour-next" id="tour-next-btn" onclick="proximoPasso()">Próximo →</button>
       </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal de alteração de senha -->
+<div class="senha-modal-overlay" id="senha-modal" style="display:none">
+  <div class="senha-modal-box">
+    <h4>🔑 Alterar senha</h4>
+    <p id="senha-modal-usuario"></p>
+    <div class="field-group">
+      <div class="field-label">Nova senha</div>
+      <input class="field-input" id="senha-nova" type="password" placeholder="Mínimo 6 caracteres">
+    </div>
+    <div class="field-group" style="margin-top:10px">
+      <div class="field-label">Confirmar senha</div>
+      <input class="field-input" id="senha-confirma" type="password" placeholder="Repita a senha">
+    </div>
+    <div class="senha-modal-actions">
+      <button class="btn btn-ghost" onclick="fecharModalSenha()">Cancelar</button>
+      <button class="btn btn-primary" onclick="confirmarAlterarSenha()">Salvar senha</button>
     </div>
   </div>
 </div>
@@ -946,7 +992,10 @@ function doLogout() {
 }
 
 // ── GERENCIAMENTO DE USUÁRIOS ──────────────────────────────────────
+const DIVISOES = ['DCO', 'DAUD', 'GAB', 'DNC', 'DTTI', 'DIE', 'DIR'];
 let _usuariosCache = [];
+let _abaUsuarios = 'ativos';
+let _usuarioSenhaPendente = null;
 
 async function carregarUsuarios() {
   const data = await supaRequest('usuarios_painel', 'GET', null, '?order=criado_em.asc');
@@ -956,32 +1005,62 @@ async function carregarUsuarios() {
 
 async function renderUsuarios() {
   const usuarios = await carregarUsuarios();
+  const filtrados = _abaUsuarios === 'todos' ? usuarios
+    : _abaUsuarios === 'ativos' ? usuarios.filter(u => u.ativo)
+    : usuarios.filter(u => !u.ativo);
+
+  const total = usuarios.length;
+  const ativos = usuarios.filter(u => u.ativo).length;
+  const desativados = usuarios.filter(u => !u.ativo).length;
+
   return `
     <div class="editor-section">
       <div class="editor-section-header"><h4>👥 Usuários cadastrados</h4></div>
       <div class="editor-section-body">
-        ${usuarios.map(u => `
-          <div class="usuario-item ${u.ativo ? '' : 'usuario-inativo'}">
-            <div class="usuario-avatar ${u.perfil === 'admin' ? 'admin' : ''}">
-              ${(u.nome_completo || u.usuario).charAt(0).toUpperCase()}
+        <div class="usuario-tabs">
+          <button class="usuario-tab ${_abaUsuarios === 'ativos' ? 'ativo' : ''}"
+            onclick="mudarAbaUsuarios('ativos')">Ativos (${ativos})</button>
+          <button class="usuario-tab ${_abaUsuarios === 'desativados' ? 'ativo' : ''}"
+            onclick="mudarAbaUsuarios('desativados')">Desativados (${desativados})</button>
+          <button class="usuario-tab ${_abaUsuarios === 'todos' ? 'ativo' : ''}"
+            onclick="mudarAbaUsuarios('todos')">Todos (${total})</button>
+        </div>
+        ${filtrados.length === 0 ? `<div class="hist-empty">Nenhum usuário nesta categoria.</div>` :
+          filtrados.map(u => `
+            <div class="usuario-item ${u.ativo ? '' : 'usuario-inativo'}">
+              <div class="usuario-avatar ${u.perfil === 'admin' ? 'admin' : ''}">
+                ${(u.nome_completo || u.usuario).charAt(0).toUpperCase()}
+              </div>
+              <div class="usuario-info">
+                <div class="ui-nome">${u.nome_completo || u.usuario}</div>
+                <div class="ui-user">
+                  @${u.usuario}
+                  ${u.divisao ? ` · ${u.divisao}` : ''}
+                  ${u.email ? ` · ${u.email}` : ''}
+                  · ${u.ultimo_acesso ? 'Último acesso: ' + formatarQuando(u.ultimo_acesso) : 'Nunca acessou'}
+                </div>
+              </div>
+              <span class="perfil-badge perfil-${u.perfil}">${u.perfil === 'admin' ? 'Admin' : 'Editor'}</span>
+              ${u.usuario !== usuarioAtual ? `
+                <button class="btn btn-ghost" style="padding:5px 9px;font-size:11px"
+                  onclick="alternarPerfilUsuario('${u.usuario}', '${u.perfil}')">
+                  ${u.perfil === 'admin' ? '→ Editor' : '→ Admin'}
+                </button>
+                <button class="btn btn-ghost" style="padding:5px 9px;font-size:11px"
+                  onclick="abrirModalSenha('${u.usuario}', '${u.nome_completo || u.usuario}')">
+                  🔑
+                </button>
+                <button class="btn ${u.ativo ? 'btn-danger' : 'btn-ghost'}" style="padding:5px 9px;font-size:11px"
+                  onclick="alternarAtivoUsuario('${u.usuario}', ${u.ativo})">
+                  ${u.ativo ? 'Desativar' : 'Reativar'}
+                </button>
+                <button class="btn btn-danger" style="padding:5px 9px;font-size:11px"
+                  onclick="excluirUsuario('${u.usuario}', '${u.nome_completo || u.usuario}')">
+                  🗑
+                </button>
+              ` : `<span style="font-size:11px;color:var(--text3)">você</span>`}
             </div>
-            <div class="usuario-info">
-              <div class="ui-nome">${u.nome_completo || u.usuario}</div>
-              <div class="ui-user">@${u.usuario} · ${u.ultimo_acesso ? 'Último acesso: ' + formatarQuando(u.ultimo_acesso) : 'Nunca acessou'}</div>
-            </div>
-            <span class="perfil-badge perfil-${u.perfil}">${u.perfil === 'admin' ? 'Admin' : 'Editor'}</span>
-            ${u.usuario !== usuarioAtual ? `
-              <button class="btn btn-ghost" style="padding:6px 10px;font-size:11px"
-                onclick="alternarPerfilUsuario('${u.usuario}', '${u.perfil}')">
-                ${u.perfil === 'admin' ? '→ Editor' : '→ Admin'}
-              </button>
-              <button class="btn ${u.ativo ? 'btn-danger' : 'btn-ghost'}" style="padding:6px 10px;font-size:11px"
-                onclick="alternarAtivoUsuario('${u.usuario}', ${u.ativo})">
-                ${u.ativo ? 'Desativar' : 'Reativar'}
-              </button>
-            ` : `<span style="font-size:11px;color:var(--text3)">você</span>`}
-          </div>
-        `).join('')}
+          `).join('')}
       </div>
     </div>
 
@@ -1001,7 +1080,7 @@ async function renderUsuarios() {
         <div class="field-row">
           <div class="field-group">
             <div class="field-label">Senha</div>
-            <input class="field-input" id="novo-senha" type="password" placeholder="Mínimo 8 caracteres">
+            <input class="field-input" id="novo-senha" type="password" placeholder="Mínimo 6 caracteres">
           </div>
           <div class="field-group">
             <div class="field-label">Perfil</div>
@@ -1011,10 +1090,28 @@ async function renderUsuarios() {
             </select>
           </div>
         </div>
+        <div class="field-row">
+          <div class="field-group">
+            <div class="field-label">Divisão</div>
+            <select class="field-input" id="novo-divisao">
+              <option value="">— Selecione —</option>
+              ${DIVISOES.map(d => `<option value="${d}">${d}</option>`).join('')}
+            </select>
+          </div>
+          <div class="field-group">
+            <div class="field-label">Email</div>
+            <input class="field-input" id="novo-email" type="email" placeholder="Ex: joao@sefaz.rs.gov.br">
+          </div>
+        </div>
         <button class="btn btn-primary" style="margin-top:8px" onclick="criarUsuario()">Criar usuário</button>
       </div>
     </div>
   `;
+}
+
+function mudarAbaUsuarios(aba) {
+  _abaUsuarios = aba;
+  showSection('usuarios');
 }
 
 async function criarUsuario() {
@@ -1022,21 +1119,40 @@ async function criarUsuario() {
   const usuario = document.getElementById('novo-usuario').value.trim();
   const senha = document.getElementById('novo-senha').value;
   const perfil = document.getElementById('novo-perfil').value;
+  const divisao = document.getElementById('novo-divisao')?.value || '';
+  const email = document.getElementById('novo-email')?.value.trim() || '';
 
   if (!usuario || !senha) { showToast('Preencha usuário e senha.'); return; }
   if (senha.length < 6) { showToast('Senha deve ter ao menos 6 caracteres.'); return; }
 
-  const result = await supaRequest('usuarios_painel', 'POST', {
-    usuario, senha, perfil, nome_completo: nome || usuario, ativo: true
-  }, '');
+  const url = `${SUPA_URL}/rest/v1/usuarios_painel`;
+  const res = await fetch(url, {
+    method: 'POST',
+    headers: {
+      'apikey': SUPA_KEY,
+      'Authorization': `Bearer ${SUPA_KEY}`,
+      'Content-Type': 'application/json',
+      'Prefer': 'return=representation'
+    },
+    body: JSON.stringify({
+      usuario, senha, perfil,
+      nome_completo: nome || usuario,
+      divisao: divisao || null,
+      email: email || null,
+      ativo: true
+    })
+  });
 
-  if (result) {
-    await registrarEvento('config', `Usuário criado: ${usuario}`, `Perfil: ${perfil}`);
-    showToast(`Usuário @${usuario} criado!`);
-    showSection('usuarios');
-  } else {
-    showToast('Erro ao criar usuário — verifique se o nome já existe.');
+  if (!res.ok) {
+    const err = await res.text();
+    console.error('Erro ao criar usuário:', err);
+    showToast('Erro ao criar usuário — verifique se o login já existe.');
+    return;
   }
+
+  await registrarEvento('config', `Usuário criado: ${usuario}`, `Perfil: ${perfil}${divisao ? ' · ' + divisao : ''}`);
+  showToast(`Usuário @${usuario} criado!`);
+  showSection('usuarios');
 }
 
 async function alternarPerfilUsuario(usuario, perfilAtualU) {
@@ -1055,6 +1171,40 @@ async function alternarAtivoUsuario(usuario, ativoAtual) {
   await registrarEvento('config', `Usuário ${acao}do: ${usuario}`, '');
   showToast(`Usuário @${usuario} ${acao}do.`);
   showSection('usuarios');
+}
+
+async function excluirUsuario(usuario, nome) {
+  if (!confirm(`Excluir permanentemente o usuário "${nome}" (@${usuario})?\n\nEsta ação não pode ser desfeita.`)) return;
+  await supaRequest('usuarios_painel', 'DELETE', null, `?usuario=eq.${usuario}`);
+  await registrarEvento('config', `Usuário excluído: ${usuario}`, nome);
+  showToast(`Usuário @${usuario} excluído.`);
+  showSection('usuarios');
+}
+
+// Modal de alteração de senha
+function abrirModalSenha(usuario, nome) {
+  _usuarioSenhaPendente = usuario;
+  document.getElementById('senha-modal-usuario').textContent = `Redefinir senha de ${nome} (@${usuario})`;
+  document.getElementById('senha-nova').value = '';
+  document.getElementById('senha-confirma').value = '';
+  document.getElementById('senha-modal').style.display = 'flex';
+  setTimeout(() => document.getElementById('senha-nova').focus(), 100);
+}
+
+function fecharModalSenha() {
+  document.getElementById('senha-modal').style.display = 'none';
+  _usuarioSenhaPendente = null;
+}
+
+async function confirmarAlterarSenha() {
+  const nova = document.getElementById('senha-nova').value;
+  const confirma = document.getElementById('senha-confirma').value;
+  if (!nova || nova.length < 6) { showToast('Senha deve ter ao menos 6 caracteres.'); return; }
+  if (nova !== confirma) { showToast('As senhas não coincidem.'); return; }
+  await supaRequest('usuarios_painel', 'PATCH', { senha: nova }, `?usuario=eq.${_usuarioSenhaPendente}`);
+  await registrarEvento('config', `Senha alterada: ${_usuarioSenhaPendente}`, 'Redefinida por admin');
+  showToast(`Senha de @${_usuarioSenhaPendente} alterada.`);
+  fecharModalSenha();
 }
 
 // ── CARREGAR DADOS ─────────────────────────────────────────────────
