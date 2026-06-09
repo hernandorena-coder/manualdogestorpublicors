@@ -7,8 +7,86 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&family=Lora:wght@400;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="style.css">
+<style>
+#acesso-screen {
+  position: fixed; inset: 0; z-index: 9999;
+  background: linear-gradient(135deg, #0f1f3d 0%, #1a3a6b 100%);
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'Sora', sans-serif;
+}
+.acesso-box {
+  background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.12);
+  border-radius: 16px; padding: 48px 40px; width: 380px;
+  box-shadow: 0 24px 64px rgba(0,0,0,.4); text-align: center;
+}
+.acesso-logo { font-size: 12px; font-weight: 700; color: #7eb3ff; letter-spacing: 3px; margin-bottom: 8px; }
+.acesso-titulo { font-size: 22px; font-weight: 700; color: #fff; margin-bottom: 6px; }
+.acesso-sub { font-size: 13px; color: rgba(255,255,255,.5); margin-bottom: 32px; }
+.acesso-label { font-size: 11px; font-weight: 600; color: rgba(255,255,255,.5); text-transform: uppercase; letter-spacing: 1px; text-align: left; margin-bottom: 6px; }
+.acesso-input {
+  width: 100%; padding: 12px 14px; background: rgba(255,255,255,.08);
+  border: 1px solid rgba(255,255,255,.15); border-radius: 8px;
+  color: #fff; font-family: 'Sora', sans-serif; font-size: 14px;
+  margin-bottom: 16px; box-sizing: border-box; transition: border-color .2s;
+}
+.acesso-input:focus { outline: none; border-color: #7eb3ff; }
+.acesso-btn {
+  width: 100%; padding: 13px; background: #2a5bd7; border: none;
+  border-radius: 8px; color: #fff; font-family: 'Sora', sans-serif;
+  font-size: 14px; font-weight: 600; cursor: pointer; transition: opacity .2s;
+}
+.acesso-btn:hover { opacity: .85; }
+.acesso-err { color: #ff7eb3; font-size: 12px; margin-top: 10px; display: none; }
+.acesso-aviso { font-size: 11px; color: rgba(255,255,255,.3); margin-top: 20px; }
+</style>
 </head>
 <body>
+
+<!-- Tela de acesso restrito -->
+<div id="acesso-screen">
+  <div class="acesso-box">
+    <div class="acesso-logo">CAGE RS</div>
+    <div class="acesso-titulo">Manual do Gestor Público</div>
+    <div class="acesso-sub">Versão de desenvolvimento — acesso restrito</div>
+    <div class="acesso-label">Senha de acesso</div>
+    <input class="acesso-input" type="password" id="acesso-senha" placeholder="••••••••">
+    <button class="acesso-btn" onclick="verificarAcesso()">Acessar</button>
+    <div class="acesso-err" id="acesso-err">Senha incorreta. Tente novamente.</div>
+    <div class="acesso-aviso">Esta versão está em desenvolvimento e sujeita a alterações.</div>
+  </div>
+</div>
+
+<script>
+(function() {
+  const SENHA = 'novomgpcage2026';
+  const CHAVE = 'mgp-acesso-v1';
+
+  function verificarAcesso() {
+    const input = document.getElementById('acesso-senha').value;
+    if (input === SENHA) {
+      sessionStorage.setItem(CHAVE, '1');
+      document.getElementById('acesso-screen').style.display = 'none';
+    } else {
+      document.getElementById('acesso-err').style.display = 'block';
+      document.getElementById('acesso-senha').value = '';
+      document.getElementById('acesso-senha').focus();
+    }
+  }
+
+  window.verificarAcesso = verificarAcesso;
+
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Enter' && document.getElementById('acesso-screen').style.display !== 'none') {
+      verificarAcesso();
+    }
+  });
+
+  // Se já autenticou nessa sessão, pula a tela
+  if (sessionStorage.getItem(CHAVE)) {
+    document.getElementById('acesso-screen').style.display = 'none';
+  }
+})();
+</script>
 
 <div id="barra-acess">
   <span id="label-ac">Acessibilidade</span>
