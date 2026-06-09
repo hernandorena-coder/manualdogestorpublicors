@@ -658,6 +658,28 @@
   .migrar-btn:hover { background: rgba(79,124,255,.2); }
   .migrar-btn:disabled { opacity: .5; cursor: not-allowed; }
 
+  /* Gerenciamento de usuários */
+  .usuario-item {
+    background: var(--bg); border: 1px solid var(--border);
+    border-radius: 8px; padding: 14px 16px; margin-bottom: 8px;
+    display: flex; align-items: center; gap: 12px;
+  }
+  .usuario-avatar {
+    width: 36px; height: 36px; border-radius: 50%; flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px; font-weight: 700; background: var(--surface2); color: var(--text2);
+  }
+  .usuario-avatar.admin { background: rgba(79,124,255,.15); color: var(--accent); }
+  .usuario-info { flex: 1; }
+  .usuario-info .ui-nome { font-size: 13px; font-weight: 600; color: var(--text); }
+  .usuario-info .ui-user { font-size: 11px; color: var(--text2); margin-top: 2px; }
+  .perfil-badge {
+    padding: 2px 8px; border-radius: 20px; font-size: 10px; font-weight: 700;
+  }
+  .perfil-admin { background: rgba(79,124,255,.15); color: var(--accent); }
+  .perfil-editor { background: rgba(139,145,168,.1); color: var(--text3); }
+  .usuario-inativo { opacity: .45; }
+
   /* Scrollbar */
   ::-webkit-scrollbar { width: 6px; }
   ::-webkit-scrollbar-track { background: transparent; }
@@ -719,6 +741,9 @@
         </div>
         <div class="nav-item" onclick="showSection('historico')" id="nav-historico">
           <span>📋</span><span>Histórico de Edições</span><span class="hist-badge" id="hist-badge" style="display:none">0</span>
+        </div>
+        <div class="nav-item" id="nav-usuarios" style="display:none" onclick="showSection('usuarios')">
+          <span>👥</span><span>Gerenciar Usuários</span>
         </div>
         <div class="nav-section" style="margin-top:8px">Temas</div>
         <div class="filtro-status" id="filtro-status">
@@ -865,30 +890,45 @@ async function supaRequest(tabela, metodo, body, filtro) {
   return metodo === 'DELETE' ? null : res.json();
 }
 
-// ── CREDENCIAIS ───────────────────────────────────────────────────
-const USUARIOS = {
-  'cage': 'gestor2026',
-  'admin': 'cage@rs2026',
-  'admin-cage': 'GabCon@cage2026'
-};
-
 // ── DADOS ─────────────────────────────────────────────────────────
 let DATA = null;
 let secaoAtual = 'dashboard';
 let temaAtual = null;
+let perfilAtual = 'editor'; // 'admin' ou 'editor'
 
 // ── LOGIN ──────────────────────────────────────────────────────────
-function doLogin() {
+async function doLogin() {
   const u = document.getElementById('login-user').value.trim();
   const p = document.getElementById('login-pass').value;
-  if (USUARIOS[u] && USUARIOS[u] === p) {
-    usuarioAtual = u;
-    document.getElementById('login-screen').style.display = 'none';
-    document.getElementById('app').style.display = 'block';
-    carregarDados();
-  } else {
+  const btn = document.querySelector('.login-btn');
+  btn.textContent = 'Verificando...';
+  btn.disabled = true;
+
+  try {
+    const data = await supaRequest('usuarios_painel', 'GET', null,
+      `?usuario=eq.${encodeURIComponent(u)}&ativo=eq.true`);
+
+    if (data && data.length > 0 && data[0].senha === p) {
+      usuarioAtual = u;
+      perfilAtual = data[0].perfil || 'editor';
+      // Atualizar último acesso
+      await supaRequest('usuarios_painel', 'PATCH',
+        { ultimo_acesso: new Date().toISOString() },
+        `?usuario=eq.${encodeURIComponent(u)}`);
+      document.getElementById('login-screen').style.display = 'none';
+      document.getElementById('app').style.display = 'block';
+      // Mostrar nav de usuários só para admins
+      document.getElementById('nav-usuarios').style.display = perfilAtual === 'admin' ? '' : 'none';
+      carregarDados();
+    } else {
+      document.getElementById('login-err').style.display = 'block';
+    }
+  } catch(e) {
+    console.error('Erro no login:', e);
     document.getElementById('login-err').style.display = 'block';
   }
+  btn.textContent = 'Entrar';
+  btn.disabled = false;
 }
 
 document.addEventListener('keydown', e => {
@@ -898,10 +938,123 @@ document.addEventListener('keydown', e => {
 function doLogout() {
   DATA = null;
   usuarioAtual = '';
+  perfilAtual = 'editor';
   document.getElementById('login-screen').style.display = 'flex';
   document.getElementById('app').style.display = 'none';
   document.getElementById('login-user').value = '';
   document.getElementById('login-pass').value = '';
+}
+
+// ── GERENCIAMENTO DE USUÁRIOS ──────────────────────────────────────
+let _usuariosCache = [];
+
+async function carregarUsuarios() {
+  const data = await supaRequest('usuarios_painel', 'GET', null, '?order=criado_em.asc');
+  _usuariosCache = data || [];
+  return _usuariosCache;
+}
+
+async function renderUsuarios() {
+  const usuarios = await carregarUsuarios();
+  return `
+    <div class="editor-section">
+      <div class="editor-section-header"><h4>👥 Usuários cadastrados</h4></div>
+      <div class="editor-section-body">
+        ${usuarios.map(u => `
+          <div class="usuario-item ${u.ativo ? '' : 'usuario-inativo'}">
+            <div class="usuario-avatar ${u.perfil === 'admin' ? 'admin' : ''}">
+              ${(u.nome_completo || u.usuario).charAt(0).toUpperCase()}
+            </div>
+            <div class="usuario-info">
+              <div class="ui-nome">${u.nome_completo || u.usuario}</div>
+              <div class="ui-user">@${u.usuario} · ${u.ultimo_acesso ? 'Último acesso: ' + formatarQuando(u.ultimo_acesso) : 'Nunca acessou'}</div>
+            </div>
+            <span class="perfil-badge perfil-${u.perfil}">${u.perfil === 'admin' ? 'Admin' : 'Editor'}</span>
+            ${u.usuario !== usuarioAtual ? `
+              <button class="btn btn-ghost" style="padding:6px 10px;font-size:11px"
+                onclick="alternarPerfilUsuario('${u.usuario}', '${u.perfil}')">
+                ${u.perfil === 'admin' ? '→ Editor' : '→ Admin'}
+              </button>
+              <button class="btn ${u.ativo ? 'btn-danger' : 'btn-ghost'}" style="padding:6px 10px;font-size:11px"
+                onclick="alternarAtivoUsuario('${u.usuario}', ${u.ativo})">
+                ${u.ativo ? 'Desativar' : 'Reativar'}
+              </button>
+            ` : `<span style="font-size:11px;color:var(--text3)">você</span>`}
+          </div>
+        `).join('')}
+      </div>
+    </div>
+
+    <div class="editor-section">
+      <div class="editor-section-header"><h4>➕ Novo usuário</h4></div>
+      <div class="editor-section-body">
+        <div class="field-row">
+          <div class="field-group">
+            <div class="field-label">Nome completo</div>
+            <input class="field-input" id="novo-nome" placeholder="Ex: João Silva">
+          </div>
+          <div class="field-group">
+            <div class="field-label">Usuário (login)</div>
+            <input class="field-input" id="novo-usuario" placeholder="Ex: joao.silva">
+          </div>
+        </div>
+        <div class="field-row">
+          <div class="field-group">
+            <div class="field-label">Senha</div>
+            <input class="field-input" id="novo-senha" type="password" placeholder="Mínimo 8 caracteres">
+          </div>
+          <div class="field-group">
+            <div class="field-label">Perfil</div>
+            <select class="field-input" id="novo-perfil">
+              <option value="editor">Editor</option>
+              <option value="admin">Administrador</option>
+            </select>
+          </div>
+        </div>
+        <button class="btn btn-primary" style="margin-top:8px" onclick="criarUsuario()">Criar usuário</button>
+      </div>
+    </div>
+  `;
+}
+
+async function criarUsuario() {
+  const nome = document.getElementById('novo-nome').value.trim();
+  const usuario = document.getElementById('novo-usuario').value.trim();
+  const senha = document.getElementById('novo-senha').value;
+  const perfil = document.getElementById('novo-perfil').value;
+
+  if (!usuario || !senha) { showToast('Preencha usuário e senha.'); return; }
+  if (senha.length < 6) { showToast('Senha deve ter ao menos 6 caracteres.'); return; }
+
+  const result = await supaRequest('usuarios_painel', 'POST', {
+    usuario, senha, perfil, nome_completo: nome || usuario, ativo: true
+  }, '');
+
+  if (result) {
+    await registrarEvento('config', `Usuário criado: ${usuario}`, `Perfil: ${perfil}`);
+    showToast(`Usuário @${usuario} criado!`);
+    showSection('usuarios');
+  } else {
+    showToast('Erro ao criar usuário — verifique se o nome já existe.');
+  }
+}
+
+async function alternarPerfilUsuario(usuario, perfilAtualU) {
+  const novoPerfil = perfilAtualU === 'admin' ? 'editor' : 'admin';
+  if (!confirm(`Alterar perfil de @${usuario} para ${novoPerfil}?`)) return;
+  await supaRequest('usuarios_painel', 'PATCH', { perfil: novoPerfil }, `?usuario=eq.${usuario}`);
+  await registrarEvento('config', `Perfil alterado: ${usuario}`, `${perfilAtualU} → ${novoPerfil}`);
+  showToast(`Perfil de @${usuario} alterado para ${novoPerfil}.`);
+  showSection('usuarios');
+}
+
+async function alternarAtivoUsuario(usuario, ativoAtual) {
+  const acao = ativoAtual ? 'desativar' : 'reativar';
+  if (!confirm(`Deseja ${acao} o usuário @${usuario}?`)) return;
+  await supaRequest('usuarios_painel', 'PATCH', { ativo: !ativoAtual }, `?usuario=eq.${usuario}`);
+  await registrarEvento('config', `Usuário ${acao}do: ${usuario}`, '');
+  showToast(`Usuário @${usuario} ${acao}do.`);
+  showSection('usuarios');
 }
 
 // ── CARREGAR DADOS ─────────────────────────────────────────────────
@@ -1115,6 +1268,14 @@ async function showSection(nome) {
     sub.textContent = 'Pesquise dentro dos textos de todos os temas';
     body.innerHTML = renderBusca('');
     setTimeout(() => document.getElementById('busca-inp')?.focus(), 50);
+  } else if (nome === 'usuarios') {
+    setActive('nav-usuarios');
+    title.textContent = 'Gerenciar Usuários';
+    sub.textContent = 'Adicionar, editar e desativar acessos ao painel';
+    body.innerHTML = `<div class="hist-empty">⏳ Carregando usuários...</div>`;
+    const html = await renderUsuarios();
+    body.innerHTML = html;
+    actions.innerHTML = '';
   } else if (nome === 'historico') {
     setActive('nav-historico');
     title.textContent = 'Histórico de Edições';
@@ -1372,7 +1533,7 @@ async function editarTema(id) {
   const actions = document.getElementById('header-actions');
   title.textContent = temaAtual.nome;
   sub.textContent = `Tema ${temaAtual.num} · ${temaAtual.secoes.length} seções`;
-  actions.innerHTML = `<button class="btn btn-success" onclick="salvarTema()">Salvar tema</button>`;
+  actions.innerHTML = `${perfilAtual === 'admin' ? `<button class="btn btn-primary" onclick="exportarJSON()">Exportar JSON</button>` : ''}<button class="btn btn-success" onclick="salvarTema()">Salvar tema</button>`;
 
   document.getElementById('main-body').innerHTML = renderEditorTema(temaAtual);
   document.querySelectorAll('.editor-section-header').forEach(el => {
@@ -1402,8 +1563,8 @@ function renderEditorTema(t) {
 
   return `
     <div id="download-bar" class="download-bar">
-      <p>📥 Há alterações não exportadas. Clique em <span>Exportar JSON</span> para baixar o arquivo atualizado.</p>
-      <button class="btn btn-primary" onclick="exportarJSON()">Exportar JSON</button>
+      <p>📥 Há alterações não exportadas. ${perfilAtual === 'admin' ? 'Clique em <span>Exportar JSON</span> para baixar o arquivo atualizado.' : 'Solicite ao administrador que exporte o JSON para publicar.'}</p>
+      ${perfilAtual === 'admin' ? `<button class="btn btn-primary" onclick="exportarJSON()">Exportar JSON</button>` : ''}
     </div>
 
     <!-- Barra de saúde -->
