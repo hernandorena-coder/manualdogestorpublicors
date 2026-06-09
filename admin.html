@@ -753,10 +753,10 @@
         <div class="nav-item" onclick="showSection('dashboard')">
           <span>📊</span><span>Dashboard</span>
         </div>
-        <div class="nav-item" onclick="showSection('site-config')">
+        <div class="nav-item" id="nav-site-config" onclick="showSection('site-config')">
           <span>⚙️</span><span>Configurações do Site</span>
         </div>
-        <div class="nav-item" onclick="showSection('atualizacoes')">
+        <div class="nav-item" id="nav-atualizacoes" onclick="showSection('atualizacoes')">
           <span>📡</span><span>Atualizações Recentes</span>
         </div>
         <div class="nav-item" onclick="showSection('faq')">
@@ -963,8 +963,11 @@ async function doLogin() {
         `?usuario=eq.${encodeURIComponent(u)}`);
       document.getElementById('login-screen').style.display = 'none';
       document.getElementById('app').style.display = 'block';
-      // Mostrar nav de usuários só para admins
-      document.getElementById('nav-usuarios').style.display = perfilAtual === 'admin' ? '' : 'none';
+      // Mostrar/esconder itens restritos a admin
+      const isAdmin = perfilAtual === 'admin';
+      document.getElementById('nav-usuarios').style.display = isAdmin ? '' : 'none';
+      document.getElementById('nav-site-config').style.display = isAdmin ? '' : 'none';
+      document.getElementById('nav-atualizacoes').style.display = isAdmin ? '' : 'none';
       carregarDados();
     } else {
       document.getElementById('login-err').style.display = 'block';
@@ -1150,7 +1153,7 @@ async function criarUsuario() {
     return;
   }
 
-  await registrarEvento('config', `Usuário criado: ${usuario}`, `Perfil: ${perfil}${divisao ? ' · ' + divisao : ''}`);
+  await registrarEvento('usuario_criado', `Usuário criado: ${usuario}`, `Perfil: ${perfil}${divisao ? ' · ' + divisao : ''}`);
   showToast(`Usuário @${usuario} criado!`);
   showSection('usuarios');
 }
@@ -1159,7 +1162,7 @@ async function alternarPerfilUsuario(usuario, perfilAtualU) {
   const novoPerfil = perfilAtualU === 'admin' ? 'editor' : 'admin';
   if (!confirm(`Alterar perfil de @${usuario} para ${novoPerfil}?`)) return;
   await supaRequest('usuarios_painel', 'PATCH', { perfil: novoPerfil }, `?usuario=eq.${usuario}`);
-  await registrarEvento('config', `Perfil alterado: ${usuario}`, `${perfilAtualU} → ${novoPerfil}`);
+  await registrarEvento('usuario_perfil', `Perfil alterado: ${usuario}`, `${perfilAtualU} → ${novoPerfil}`);
   showToast(`Perfil de @${usuario} alterado para ${novoPerfil}.`);
   showSection('usuarios');
 }
@@ -1168,7 +1171,7 @@ async function alternarAtivoUsuario(usuario, ativoAtual) {
   const acao = ativoAtual ? 'desativar' : 'reativar';
   if (!confirm(`Deseja ${acao} o usuário @${usuario}?`)) return;
   await supaRequest('usuarios_painel', 'PATCH', { ativo: !ativoAtual }, `?usuario=eq.${usuario}`);
-  await registrarEvento('config', `Usuário ${acao}do: ${usuario}`, '');
+  await registrarEvento(`usuario_${acao}`, `Usuário ${acao}do: ${usuario}`, '');
   showToast(`Usuário @${usuario} ${acao}do.`);
   showSection('usuarios');
 }
@@ -1176,7 +1179,7 @@ async function alternarAtivoUsuario(usuario, ativoAtual) {
 async function excluirUsuario(usuario, nome) {
   if (!confirm(`Excluir permanentemente o usuário "${nome}" (@${usuario})?\n\nEsta ação não pode ser desfeita.`)) return;
   await supaRequest('usuarios_painel', 'DELETE', null, `?usuario=eq.${usuario}`);
-  await registrarEvento('config', `Usuário excluído: ${usuario}`, nome);
+  await registrarEvento('usuario_excluido', `Usuário excluído: ${usuario}`, nome);
   showToast(`Usuário @${usuario} excluído.`);
   showSection('usuarios');
 }
@@ -1202,7 +1205,7 @@ async function confirmarAlterarSenha() {
   if (!nova || nova.length < 6) { showToast('Senha deve ter ao menos 6 caracteres.'); return; }
   if (nova !== confirma) { showToast('As senhas não coincidem.'); return; }
   await supaRequest('usuarios_painel', 'PATCH', { senha: nova }, `?usuario=eq.${_usuarioSenhaPendente}`);
-  await registrarEvento('config', `Senha alterada: ${_usuarioSenhaPendente}`, 'Redefinida por admin');
+  await registrarEvento('usuario_senha', `Senha alterada: ${_usuarioSenhaPendente}`, 'Redefinida por admin');
   showToast(`Senha de @${_usuarioSenhaPendente} alterada.`);
   fecharModalSenha();
 }
@@ -1385,6 +1388,15 @@ async function showSection(nome) {
   const sub = document.getElementById('main-subtitle');
   const actions = document.getElementById('header-actions');
   actions.innerHTML = '';
+
+  // Seções restritas a admin
+  const secoesAdmin = ['site-config', 'atualizacoes', 'usuarios'];
+  if (secoesAdmin.includes(nome) && perfilAtual !== 'admin') {
+    title.textContent = 'Acesso restrito';
+    sub.textContent = 'Esta seção é exclusiva para administradores';
+    body.innerHTML = `<div class="hist-empty"><div style="font-size:32px;margin-bottom:12px">🔒</div><div>Você não tem permissão para acessar esta seção.</div></div>`;
+    return;
+  }
 
   if (nome === 'dashboard') {
     setActive(null);
@@ -2517,8 +2529,13 @@ const HIST_MAX = 50;
 let usuarioAtual = '';
 let _historicoCache = [];
 
+// Tipos de evento que são restritos a admins
+const EVENTOS_ADMIN = ['usuario_criado', 'usuario_excluido', 'usuario_desativado',
+                       'usuario_reativado', 'usuario_perfil', 'usuario_senha'];
+
 async function registrarEvento(tipo, acao, detalhe) {
-  const evento = { tipo, acao, detalhe, usuario: usuarioAtual };
+  const visibilidade = EVENTOS_ADMIN.includes(tipo) ? 'admin' : 'todos';
+  const evento = { tipo, acao, detalhe, usuario: usuarioAtual, visibilidade };
   // Otimista: adiciona ao cache local imediatamente
   _historicoCache.unshift({ ...evento, criado_em: new Date().toISOString() });
   atualizarBadge();
@@ -2527,8 +2544,11 @@ async function registrarEvento(tipo, acao, detalhe) {
 }
 
 async function carregarHistorico() {
-  const data = await supaFetch('historico_edicoes', 'GET', null,
-    `?order=criado_em.desc&limit=${HIST_MAX}`);
+  // Editores só veem eventos de visibilidade 'todos'
+  const filtro = perfilAtual === 'admin'
+    ? `?order=criado_em.desc&limit=${HIST_MAX}`
+    : `?order=criado_em.desc&limit=${HIST_MAX}&visibilidade=eq.todos`;
+  const data = await supaFetch('historico_edicoes', 'GET', null, filtro);
   _historicoCache = data || [];
   atualizarBadge();
   return _historicoCache;
@@ -2584,6 +2604,7 @@ async function renderHistorico() {
 }
 
 async function limparHistorico() {
+  if (perfilAtual !== 'admin') { showToast('Apenas administradores podem limpar o histórico.'); return; }
   if (!confirm('Limpar todo o histórico de edições? Esta ação afeta todos os usuários.')) return;
   await supaFetch('historico_edicoes', 'DELETE', null, `?id=gte.0`);
   _historicoCache = [];
