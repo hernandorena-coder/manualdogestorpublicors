@@ -1445,7 +1445,8 @@ async function showSection(nome) {
     body.innerHTML = `<div class="hist-empty">⏳ Carregando histórico...</div>`;
     const html = await renderHistorico();
     const hist = _historicoCache;
-    document.getElementById('header-actions').innerHTML = hist.length > 0
+    // Botão limpar só para admins
+    document.getElementById('header-actions').innerHTML = (perfilAtual === 'admin' && hist.length > 0)
       ? `<button class="btn btn-danger" onclick="limparHistorico()">Limpar histórico</button>` : '';
     body.innerHTML = html;
   }
