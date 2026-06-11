@@ -72,7 +72,7 @@ function inicializarInterface() {
     <a href="#" onclick="irParaHome()" id="nav-inicio" class="on">Início</a>
     <a href="#" onclick="irParaTemas()" id="nav-temas">Temas</a>
     <a href="#" onclick="irParaLegislacao()" id="nav-leg">Legislação</a>
-    <a href="#" id="nav-mod">Modelos</a>
+    <a href="#" onclick="irParaContato()" id="nav-contato">Entre em Contato</a>
     <a href="#" onclick="irParaCAGE()" id="nav-cage">Sobre a CAGE</a>`;
 
   // Cards de temas na home
@@ -199,6 +199,12 @@ function irParaCAGE() {
   mostrarPagina('pg-cage');
   document.querySelectorAll('.h-nav a').forEach(link => link.classList.remove('on'));
   document.getElementById('nav-cage')?.classList.add('on');
+}
+
+function irParaContato() {
+  mostrarPagina('pg-contato');
+  document.querySelectorAll('.h-nav a').forEach(link => link.classList.remove('on'));
+  document.getElementById('nav-contato')?.classList.add('on');
 }
 
 // Aliases mantidos para compatibilidade com o HTML existente
@@ -813,7 +819,9 @@ function imprimirTema() {
     doc.setFontSize(8);
     doc.setFont('helvetica', 'normal');
     doc.setTextColor(...COR_TEXTO_MEDIO);
+    const dataExportacao = new Date().toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric' });
     doc.text('Manual do Gestor Público · CAGE RS', MARGEM_ESQ, ALTURA_PAGINA - 10);
+    doc.text(`Exportado em ${dataExportacao}`, LARGURA_PAGINA / 2, ALTURA_PAGINA - 10, { align: 'center' });
     doc.text(String(doc.internal.getNumberOfPages()), LARGURA_PAGINA - MARGEM_DIR, ALTURA_PAGINA - 10, { align: 'right' });
   }
 
