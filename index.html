@@ -1,48 +1,62 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Manual do Gestor Público — CAGE RS</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&family=Lora:wght@400;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css">
-<style>
-#acesso-screen {
-  position: fixed; inset: 0; z-index: 9999;
-  background: linear-gradient(135deg, #0f1f3d 0%, #1a3a6b 100%);
-  display: flex; align-items: center; justify-content: center;
-  font-family: 'Sora', sans-serif;
-}
-.acesso-box {
-  background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.12);
-  border-radius: 16px; padding: 48px 40px; width: 380px;
-  box-shadow: 0 24px 64px rgba(0,0,0,.4); text-align: center;
-}
-.acesso-logo { font-size: 12px; font-weight: 700; color: #7eb3ff; letter-spacing: 3px; margin-bottom: 8px; }
-.acesso-titulo { font-size: 22px; font-weight: 700; color: #fff; margin-bottom: 6px; }
-.acesso-sub { font-size: 13px; color: rgba(255,255,255,.5); margin-bottom: 32px; }
-.acesso-label { font-size: 11px; font-weight: 600; color: rgba(255,255,255,.5); text-transform: uppercase; letter-spacing: 1px; text-align: left; margin-bottom: 6px; }
-.acesso-input {
-  width: 100%; padding: 12px 14px; background: rgba(255,255,255,.08);
-  border: 1px solid rgba(255,255,255,.15); border-radius: 8px;
-  color: #fff; font-family: 'Sora', sans-serif; font-size: 14px;
-  margin-bottom: 16px; box-sizing: border-box; transition: border-color .2s;
-}
-.acesso-input:focus { outline: none; border-color: #7eb3ff; }
-.acesso-btn {
-  width: 100%; padding: 13px; background: #2a5bd7; border: none;
-  border-radius: 8px; color: #fff; font-family: 'Sora', sans-serif;
-  font-size: 14px; font-weight: 600; cursor: pointer; transition: opacity .2s;
-}
-.acesso-btn:hover { opacity: .85; }
-.acesso-err { color: #ff7eb3; font-size: 12px; margin-top: 10px; display: none; }
-.acesso-aviso { font-size: 11px; color: rgba(255,255,255,.3); margin-top: 20px; }
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Manual do Gestor Público — CAGE RS</title>
+
+  <!-- Fontes do Google: Sora (corpo) e Lora (títulos) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&family=Lora:wght@400;600;700&display=swap" rel="stylesheet">
+
+  <!-- Estilos principais do site -->
+  <link rel="stylesheet" href="style.css">
+
+  <!--
+    Estilos da tela de acesso restrito (fase de desenvolvimento)
+    REMOVER este bloco quando o site for publicado para o público geral
+  -->
+  <style>
+    #acesso-screen {
+      position: fixed; inset: 0; z-index: 9999;
+      background: linear-gradient(135deg, #0f1f3d 0%, #1a3a6b 100%);
+      display: flex; align-items: center; justify-content: center;
+      font-family: 'Sora', sans-serif;
+    }
+    .acesso-box {
+      background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.12);
+      border-radius: 16px; padding: 48px 40px; width: 380px;
+      box-shadow: 0 24px 64px rgba(0,0,0,.4); text-align: center;
+    }
+    .acesso-logo { font-size: 12px; font-weight: 700; color: #7eb3ff; letter-spacing: 3px; margin-bottom: 8px; }
+    .acesso-titulo { font-size: 22px; font-weight: 700; color: #fff; margin-bottom: 6px; }
+    .acesso-sub { font-size: 13px; color: rgba(255,255,255,.5); margin-bottom: 32px; }
+    .acesso-label { font-size: 11px; font-weight: 600; color: rgba(255,255,255,.5); text-transform: uppercase; letter-spacing: 1px; text-align: left; margin-bottom: 6px; }
+    .acesso-input {
+      width: 100%; padding: 12px 14px; background: rgba(255,255,255,.08);
+      border: 1px solid rgba(255,255,255,.15); border-radius: 8px;
+      color: #fff; font-family: 'Sora', sans-serif; font-size: 14px;
+      margin-bottom: 16px; box-sizing: border-box; transition: border-color .2s;
+    }
+    .acesso-input:focus { outline: none; border-color: #7eb3ff; }
+    .acesso-btn {
+      width: 100%; padding: 13px; background: #2a5bd7; border: none;
+      border-radius: 8px; color: #fff; font-family: 'Sora', sans-serif;
+      font-size: 14px; font-weight: 600; cursor: pointer; transition: opacity .2s;
+    }
+    .acesso-btn:hover { opacity: .85; }
+    .acesso-err { color: #ff7eb3; font-size: 12px; margin-top: 10px; display: none; }
+    .acesso-aviso { font-size: 11px; color: rgba(255,255,255,.3); margin-top: 20px; }
+  </style>
 </head>
 <body>
 
-<!-- Tela de acesso restrito -->
+<!-- ================================================================
+  TELA DE ACESSO RESTRITO (fase de desenvolvimento)
+  Exige senha antes de mostrar o site.
+  REMOVER este bloco inteiro quando publicar para o público geral.
+  Senha atual: definida na constante SENHA abaixo.
+  ================================================================ -->
 <div id="acesso-screen">
   <div class="acesso-box">
     <div class="acesso-logo">CAGE RS</div>
@@ -58,8 +72,8 @@
 
 <script>
 (function() {
-  const SENHA = 'novomgpcage2026';
-  const CHAVE = 'mgp-acesso-v1';
+  const SENHA = 'novomgpcage2026'; /* Alterar aqui para mudar a senha de acesso */
+  const CHAVE = 'mgp-acesso-v1';  /* Chave usada no sessionStorage do navegador */
 
   function verificarAcesso() {
     const input = document.getElementById('acesso-senha').value;
@@ -75,19 +89,27 @@
 
   window.verificarAcesso = verificarAcesso;
 
+  /* Permitir Enter para submeter */
   document.addEventListener('keydown', function(e) {
     if (e.key === 'Enter' && document.getElementById('acesso-screen').style.display !== 'none') {
       verificarAcesso();
     }
   });
 
-  // Se já autenticou nessa sessão, pula a tela
+  /* Se já autenticou nesta sessão do navegador, pula a tela */
   if (sessionStorage.getItem(CHAVE)) {
     document.getElementById('acesso-screen').style.display = 'none';
   }
 })();
 </script>
 
+
+<!-- ================================================================
+  BARRA DE ACESSIBILIDADE
+  Fixada no topo, acima do header.
+  Botões A− / A / A+ ajustam o tamanho da fonte (via app.js → ajustarFonte).
+  "Alto contraste" adiciona a classe .hi-c ao body (via app.js → alternarAltoContraste).
+  ================================================================ -->
 <div id="barra-acess">
   <span id="label-ac">Acessibilidade</span>
   <button class="btn-ac" onclick="setF(-1)">A−</button>
@@ -96,9 +118,19 @@
   <button class="btn-ac" id="btn-hc" onclick="toggleHC()">Alto contraste</button>
 </div>
 
+
+<!-- ================================================================
+  CABEÇALHO PRINCIPAL
+  Sticky (fica fixo ao rolar).
+  Logo + sigla preenchidos pelo app.js (inicializarInterface).
+  Campo de busca chama buscar() ao digitar ou pressionar Enter.
+  Menu de navegação (#h-nav) montado dinamicamente pelo app.js.
+  ================================================================ -->
 <header>
   <div class="h-marca">
+    <!-- Botão de menu para dispositivos móveis (escondido em telas grandes) -->
     <button id="btn-mob" onclick="goHome()">☰</button>
+    <!-- Sigla e nome preenchidos pelo app.js -->
     <div class="h-sigla" id="h-sigla"></div>
     <div class="h-sep"></div>
     <div class="h-nome">
@@ -106,62 +138,122 @@
       <span id="h-sub"></span>
     </div>
   </div>
+  <!-- Campo de busca global -->
   <div class="h-busca">
-    <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
-    <input type="text" id="h-inp" placeholder="Buscar no manual…" oninput="buscar(this.value)" onkeydown="if(event.key==='Enter')buscar(this.value)">
+    <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+      <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+    </svg>
+    <input type="text" id="h-inp"
+      placeholder="Buscar no manual…"
+      oninput="buscar(this.value)"
+      onkeydown="if(event.key==='Enter') buscar(this.value)">
   </div>
+  <!-- Links de navegação — montados pelo app.js (inicializarInterface) -->
   <nav class="h-nav" id="h-nav"></nav>
 </header>
 
+
+<!-- ================================================================
+  PÁGINA: HOME  (#pg-home)
+  Página inicial com hero, cards de temas, FAQ e atualizações.
+  Conteúdo dinâmico preenchido pelo app.js (inicializarInterface).
+  ================================================================ -->
 <div id="pg-home" class="page on">
+
+  <!-- Hero — seção de destaque com busca principal -->
   <section class="hero">
     <div class="hero-inner">
       <div class="hero-badge">⭐ <span id="hero-edicao"></span></div>
       <h1 id="hero-titulo"></h1>
       <p id="hero-sub"></p>
       <div class="hero-busca">
-        <input type="text" id="hero-inp" placeholder="Ex: diárias, licitação, adiantamento…" onkeydown="if(event.key==='Enter')buscar(this.value)">
+        <input type="text" id="hero-inp"
+          placeholder="Ex: diárias, licitação, adiantamento…"
+          onkeydown="if(event.key==='Enter') buscar(this.value)">
         <button onclick="buscar(document.getElementById('hero-inp').value)">Buscar</button>
       </div>
+      <!-- Estatísticas (nº de temas, última atualização) — preenchidas pelo app.js -->
       <div class="hero-stats" id="hero-stats"></div>
     </div>
   </section>
+
+  <!-- Conteúdo da home -->
   <div class="hw">
-    <div class="sec-head"><h2>Temas mais acessados</h2><a href="#" onclick="document.getElementById('ancora-temas').scrollIntoView({behavior:'smooth'})">Ver todos →</a></div>
+
+    <!-- Grade de temas em destaque (marcados como destaque no conteudo.json) -->
+    <div class="sec-head">
+      <h2>Temas mais acessados</h2>
+      <a href="#" onclick="document.getElementById('ancora-temas').scrollIntoView({behavior:'smooth'})">Ver todos →</a>
+    </div>
     <div class="tgrid" id="grid-dest"></div>
-    <div class="sec-head" id="ancora-temas"><h2>Todos os temas do manual</h2></div>
+
+    <!-- Grade com todos os temas -->
+    <div class="sec-head" id="ancora-temas">
+      <h2>Todos os temas do manual</h2>
+    </div>
     <div class="tgrid" id="grid-todos"></div>
-    <div class="sec-head"><h2>Perguntas frequentes &amp; Atualizações</h2></div>
+
+    <!-- FAQ e atualizações lado a lado -->
+    <div class="sec-head">
+      <h2>Perguntas frequentes &amp; Atualizações</h2>
+    </div>
     <div class="dgrid">
       <div class="dbox">
         <h3>❓ Perguntas frequentes</h3>
+        <!-- Lista preenchida pelo app.js (montarFaqHome) -->
         <ul class="fq-home" id="faq-home"></ul>
       </div>
       <div class="dbox">
         <h3>📡 Últimas atualizações</h3>
+        <!-- Lista preenchida pelo app.js (montarAtualizacoesHome) -->
         <div class="atu-l" id="atu-home"></div>
       </div>
     </div>
+
   </div>
 </div>
 
+
+<!-- ================================================================
+  PÁGINA: RESULTADOS DE BUSCA  (#pg-busca)
+  Exibida quando o usuário pesquisa algo.
+  Conteúdo preenchido pelo app.js (buscar).
+  ================================================================ -->
 <div id="pg-busca" class="page">
   <div id="pg-busca-wrap">
-    <div class="bc"><a href="#" onclick="goHome()">Início</a><span>›</span><span>Busca</span></div>
-    <h2 style="font-family:var(--f-titulo);color:var(--azul);font-size:22px;margin-bottom:6px;">Resultados da busca</h2>
+    <div class="bc">
+      <a href="#" onclick="goHome()">Início</a>
+      <span>›</span>
+      <span>Busca</span>
+    </div>
+    <h2 style="font-family:var(--f-titulo);color:var(--azul);font-size:22px;margin-bottom:6px;">
+      Resultados da busca
+    </h2>
+    <!-- Texto "X resultado(s) para Y" — preenchido pelo app.js -->
     <p id="busca-info" style="color:var(--cinza-suav);font-size:14px;margin-bottom:20px;"></p>
+    <!-- Cards de resultado — preenchidos pelo app.js -->
     <div id="busca-lista"></div>
   </div>
 </div>
 
+
+<!-- ================================================================
+  PÁGINA: TEMA INTERNO  (#pg-interna)
+  Exibida ao clicar em qualquer tema.
+  Todo o conteúdo é gerado dinamicamente pelo app.js (abrirTema).
+  ================================================================ -->
 <div id="pg-interna" class="page">
+
+  <!-- Hero azul com título, breadcrumb e badges -->
   <div class="pg-hero">
     <div class="pg-hi">
+      <!-- Breadcrumb: Início › Temas › Nome do tema -->
       <div class="bc">
         <a href="#" onclick="goHome()">Início</a><span>›</span>
         <a href="#" onclick="goHome()">Temas</a><span>›</span>
         <span id="bc-tema" style="color:rgba(255,255,255,.85)"></span>
       </div>
+      <!-- Ícone + título + badges (atualizado, novo) -->
       <div class="pg-meta">
         <div class="pg-ic" id="pg-ic"></div>
         <div>
@@ -169,42 +261,69 @@
           <div class="pg-mr" id="pg-badges"></div>
         </div>
       </div>
+      <!-- Resumo do tema -->
       <p class="pg-sub" id="pg-resumo"></p>
+      <!-- Responsável pela atualização -->
       <div style="margin-top:12px;font-size:12px;color:rgba(255,255,255,.4);" id="pg-resp"></div>
     </div>
   </div>
+
+  <!-- Layout de duas colunas: sidebar + conteúdo -->
   <div class="pg-lay">
+
+    <!-- Sidebar lateral com sumário, chips de legislação e botão PDF -->
     <aside class="pg-side">
       <span class="ps-lbl">Neste tema</span>
+      <!-- Sumário de seções — preenchido pelo app.js (montarNavLateral) -->
       <ul class="pg-nav" id="pg-nav"></ul>
+      <!-- Chips das principais normas — preenchidos pelo app.js (abrirTema) -->
       <div class="side-leg" id="side-leg"></div>
+      <!-- Botão para exportar o tema em PDF -->
       <button class="btn-pdf" onclick="imprimirTema()">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9V2h12v7"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8" rx="1"/></svg>
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M6 9V2h12v7"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8" rx="1"/>
+        </svg>
         Exportar PDF
       </button>
     </aside>
+
+    <!-- Área principal de conteúdo — preenchida pelo app.js (montarConteudoTema) -->
     <main class="pg-cont" id="pg-cont"></main>
+
   </div>
 </div>
 
 
+<!-- ================================================================
+  PÁGINA: TODOS OS TEMAS  (#pg-temas)
+  Lista completa de temas com filtros por texto e por categoria.
+  Lista gerada pelo app.js (renderizarListaTemas).
+  ================================================================ -->
 <div id="pg-temas" class="page">
   <div class="pt-hero">
     <div style="max-width:960px;margin:0 auto">
       <h1>Todos os Temas</h1>
-      <p>Manual de Orientação do Gestor Público · CAGE RS · 5ª edição 2022</p>
-      <input type="text" id="pt-inp" placeholder="Filtrar temas…"
+      <p>Manual do Gestor Público · CAGE RS · 6ª edição 2026</p>
+      <!-- Campo de busca por texto -->
+      <input type="text" id="pt-inp"
+        placeholder="Filtrar temas…"
         style="width:100%;max-width:420px;padding:10px 16px;border-radius:var(--r-md);border:none;font-size:14px;color:var(--azul-esc);outline:none"
         oninput="filtrarTemas(this.value)">
+      <!-- Chips de filtro por categoria — gerados pelo app.js (montarFiltrosTemas) -->
       <div class="pt-filtros" id="pt-filtros"></div>
     </div>
   </div>
+  <!-- Lista de temas agrupada por categoria — gerada pelo app.js -->
   <div class="pt-body">
     <div id="pt-lista-wrap"></div>
   </div>
 </div>
 
 
+<!-- ================================================================
+  PÁGINA: LEGISLAÇÃO  (#pg-leg)
+  Página estática com informações sobre o Portal SINCAGE.
+  ================================================================ -->
 <div id="pg-leg" class="page">
   <div class="pl-hero">
     <h1>Legislação</h1>
@@ -215,16 +334,18 @@
       <div class="pl-sub">Ferramenta oficial recomendada</div>
       <h2>Portal de Legislação e Jurisprudência</h2>
       <p>
-        Para consulta de legislação estadual, a CAGE recomenda o uso do <strong>Portal de Legislação e Jurisprudência — SINCAGE</strong>,
-        mantido pela Contadoria e Auditoria-Geral do Estado. O portal é atualizado continuamente conforme as publicações
-        do <strong>Diário Oficial do Estado do Rio Grande do Sul</strong>, garantindo que você sempre acesse a versão
-        vigente das normas.
+        Para consulta de legislação estadual, a CAGE recomenda o uso do
+        <strong>Portal de Legislação e Jurisprudência — SINCAGE</strong>,
+        mantido pela Contadoria e Auditoria-Geral do Estado. O portal é atualizado
+        continuamente conforme as publicações do
+        <strong>Diário Oficial do Estado do Rio Grande do Sul</strong>,
+        garantindo que você sempre acesse a versão vigente das normas.
       </p>
       <p>
-        Além de leis, decretos e instruções normativas, o SINCAGE reúne informações e orientações oficiais produzidas
-        por diferentes órgãos, o que facilita a pesquisa integrada sobre os mais diversos assuntos da administração pública estadual.
+        Além de leis, decretos e instruções normativas, o SINCAGE reúne informações
+        e orientações oficiais produzidas por diferentes órgãos, o que facilita a
+        pesquisa integrada sobre os mais diversos assuntos da administração pública estadual.
       </p>
-
       <div class="pl-features">
         <div class="pl-feat">
           <div class="pl-feat-ic">📋</div>
@@ -247,12 +368,12 @@
           <div class="pl-feat-d">Base normativa atualizada conforme o Diário Oficial — leis, decretos, portarias e resoluções vigentes</div>
         </div>
       </div>
-
       <a href="https://sincage.sefaz.rs.gov.br/home" target="_blank" rel="noopener" class="pl-cta">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
+        </svg>
         Acessar o Portal de Legislação e Jurisprudência
       </a>
-
       <div class="pl-aviso">
         <span class="pl-aviso-ic">ℹ️</span>
         <span>Os links de legislação presentes nos temas deste Manual apontam diretamente para o SINCAGE. Ao clicar em qualquer norma, você será direcionado para a versão oficial e atualizada no portal.</span>
@@ -262,16 +383,32 @@
 </div>
 
 
+<!-- ================================================================
+  PÁGINA: SOBRE A CAGE  (#pg-cage)
+  Página estática com missão, macrofunções, histórico,
+  estrutura organizacional, portais e contato.
+  ================================================================ -->
 <div id="pg-cage" class="page">
+
+  <!-- Hero com missão e estatísticas -->
   <div class="pc-hero">
     <div class="pc-hero-inner">
       <div>
         <h1>Contadoria e Auditoria-Geral do Estado</h1>
         <p class="pc-missao">Promover a boa governança dos recursos públicos em prol do bem-estar da sociedade gaúcha, por meio da fiscalização e da orientação aos gestores e servidores públicos estaduais.</p>
         <div class="pc-stats">
-          <div class="pc-stat"><div class="pc-stat-n">14</div><div class="pc-stat-l">Seccionais na Adm. Direta</div></div>
-          <div class="pc-stat"><div class="pc-stat-n">7</div><div class="pc-stat-l">Setoriais na Adm. Indireta</div></div>
-          <div class="pc-stat"><div class="pc-stat-n">1948</div><div class="pc-stat-l">Ano de fundação</div></div>
+          <div class="pc-stat">
+            <div class="pc-stat-n">14</div>
+            <div class="pc-stat-l">Seccionais na Adm. Direta</div>
+          </div>
+          <div class="pc-stat">
+            <div class="pc-stat-n">7</div>
+            <div class="pc-stat-l">Setoriais na Adm. Indireta</div>
+          </div>
+          <div class="pc-stat">
+            <div class="pc-stat-n">1948</div>
+            <div class="pc-stat-l">Ano de fundação</div>
+          </div>
         </div>
       </div>
       <div class="pc-badge">
@@ -283,7 +420,7 @@
 
   <div class="pc-body">
 
-    <!-- Macrofunções -->
+    <!-- Macrofunções institucionais -->
     <div class="pc-section">
       <div class="pc-section-titulo">Macrofunções institucionais</div>
       <div class="pc-macro">
@@ -310,30 +447,30 @@
       </div>
     </div>
 
-    <!-- Histórico -->
+    <!-- Linha do tempo histórico -->
     <div class="pc-section">
       <div class="pc-section-titulo">Histórico</div>
       <div class="pc-hist">
         <div class="pc-hitem">
           <div class="pc-hano">1948</div>
-          <div class="pc-htxt">Criação da <strong>Contadoria-Geral do Estado</strong> pela Lei nº 521, de 28 de dezembro, com a missão de conferir maior agilidade e confiabilidade às informações contábeis, uniformizando procedimentos e harmonizando a atuação dos órgãos estaduais. Já nessa época, exercia funções típicas de controle interno, como a colaboração com o Tribunal de Contas.</div>
+          <div class="pc-htxt">Criação da <strong>Contadoria-Geral do Estado</strong> pela Lei nº 521, de 28 de dezembro, com a missão de conferir maior agilidade e confiabilidade às informações contábeis, uniformizando procedimentos e harmonizando a atuação dos órgãos estaduais.</div>
         </div>
         <div class="pc-hitem">
           <div class="pc-hano">1970</div>
-          <div class="pc-htxt">O Decreto nº 20.193 estabeleceu o <strong>Sistema de Contabilidade e Auditoria do Estado do Rio Grande do Sul</strong>, tendo como órgão central a Contadoria e Auditoria-Geral do Estado. A ocasião marcou a mudança de denominação do Órgão e institucionalizou a função de auditoria com a criação da Divisão de Auditoria.</div>
+          <div class="pc-htxt">O Decreto nº 20.193 estabeleceu o <strong>Sistema de Contabilidade e Auditoria do Estado do Rio Grande do Sul</strong>, tendo como órgão central a Contadoria e Auditoria-Geral do Estado. Marcou a mudança de denominação do Órgão e institucionalizou a função de auditoria.</div>
         </div>
         <div class="pc-hitem">
           <div class="pc-hano">1989</div>
-          <div class="pc-htxt">A <strong>Constituição Estadual</strong>, promulgada em 3 de outubro, estabeleceu em seu art. 76 o sistema de controle interno do Estado, com organização una e integrada, atribuindo à CAGE a figura de órgão central, com delegações junto às unidades administrativas dos três Poderes estaduais.</div>
+          <div class="pc-htxt">A <strong>Constituição Estadual</strong>, promulgada em 3 de outubro, estabeleceu em seu art. 76 o sistema de controle interno do Estado, atribuindo à CAGE a figura de órgão central com delegações junto às unidades dos três Poderes estaduais.</div>
         </div>
         <div class="pc-hitem">
           <div class="pc-hano">2010</div>
-          <div class="pc-htxt">Publicação da <strong>Lei Complementar Estadual nº 13.451</strong>, a Lei Orgânica da Contadoria e Auditoria-Geral do Estado. A norma estabeleceu as funções institucionais da CAGE, disciplinou o regime jurídico especial da carreira de Auditor do Estado e a consolidou como único órgão de controle interno do País com atuação permanente em todos os Poderes e Órgãos Autônomos de Estado.</div>
+          <div class="pc-htxt">Publicação da <strong>Lei Complementar Estadual nº 13.451</strong>, a Lei Orgânica da CAGE. Estabeleceu as funções institucionais, disciplinou o regime jurídico da carreira de Auditor do Estado e consolidou a CAGE como único órgão de controle interno do País com atuação permanente em todos os Poderes.</div>
         </div>
       </div>
     </div>
 
-    <!-- Estrutura organizacional -->
+    <!-- Estrutura organizacional — atualizada em maio/2026 -->
     <div class="pc-section">
       <div class="pc-section-titulo">Estrutura organizacional</div>
       <div class="pc-divs">
@@ -380,27 +517,35 @@
       </div>
     </div>
 
-    <!-- Links úteis -->
+    <!-- Portais e sistemas oficiais -->
     <div class="pc-section">
       <div class="pc-section-titulo">Portais e sistemas da CAGE</div>
       <div class="pc-links">
         <a href="https://cage.fazenda.rs.gov.br" target="_blank" rel="noopener" class="pc-link">
           <div class="pc-link-ic">🏛️</div>
-          <div><div class="pc-link-t">Site da CAGE</div><div class="pc-link-d">cage.fazenda.rs.gov.br</div></div>
+          <div>
+            <div class="pc-link-t">Site da CAGE</div>
+            <div class="pc-link-d">cage.fazenda.rs.gov.br</div>
+          </div>
         </a>
         <a href="https://sincage.sefaz.rs.gov.br/home" target="_blank" rel="noopener" class="pc-link">
           <div class="pc-link-ic">📋</div>
-          <div><div class="pc-link-t">Portal de Legislação e Jurisprudência</div><div class="pc-link-d">SINCAGE</div></div>
+          <div>
+            <div class="pc-link-t">Portal de Legislação e Jurisprudência</div>
+            <div class="pc-link-d">SINCAGE</div>
+          </div>
         </a>
         <a href="http://www.transparencia.rs.gov.br" target="_blank" rel="noopener" class="pc-link">
           <div class="pc-link-ic">📡</div>
-          <div><div class="pc-link-t">Portal Transparência RS</div><div class="pc-link-d">transparencia.rs.gov.br</div></div>
+          <div>
+            <div class="pc-link-t">Portal Transparência RS</div>
+            <div class="pc-link-d">transparencia.rs.gov.br</div>
+          </div>
         </a>
-
       </div>
     </div>
 
-    <!-- Contato -->
+    <!-- Informações de contato -->
     <div class="pc-section">
       <div class="pc-section-titulo">Contato</div>
       <div class="pc-contato">
@@ -422,7 +567,7 @@
           <div class="pc-contato-ic">✉️</div>
           <div>
             <div class="pc-contato-t">E-mail</div>
-            <div class="pc-contato-v"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="6b080a0c0e2b180e0d0a11451918450c041d450919">[email&#160;protected]</a></div>
+            <div class="pc-contato-v">cage@sefaz.rs.gov.br</div>
           </div>
         </div>
       </div>
@@ -431,6 +576,11 @@
   </div>
 </div>
 
+
+<!-- ================================================================
+  RODAPÉ
+  Conteúdo preenchido pelo app.js (inicializarInterface).
+  ================================================================ -->
 <footer>
   <div class="fi">
     <div>
@@ -439,11 +589,23 @@
     </div>
     <div style="text-align:right">
       <div>Secretaria da Fazenda do RS</div>
-      <div style="margin-top:4px"><a href="https://cage.fazenda.rs.gov.br" style="color:rgba(255,255,255,.5)">cage.fazenda.rs.gov.br</a></div>
+      <div style="margin-top:4px">
+        <a href="https://cage.fazenda.rs.gov.br" style="color:rgba(255,255,255,.5)">
+          cage.fazenda.rs.gov.br
+        </a>
+      </div>
     </div>
   </div>
 </footer>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script><script src="app.js"></script>
+
+<!-- ================================================================
+  SCRIPTS
+  jsPDF: biblioteca para geração de PDF no navegador
+  app.js: toda a lógica do site
+  ================================================================ -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="app.js"></script>
+
 </body>
 </html>
