@@ -87,7 +87,7 @@
     }
   }
 
-  window.verificarAcesso = verificarAcesso;
+  globalThis.verificarAcesso = verificarAcesso;
 
   /* Permitir Enter para submeter */
   document.addEventListener('keydown', function(e) {
@@ -189,9 +189,9 @@
     </div>
     <div class="tgrid" id="grid-dest"></div>
 
-    <!-- Grade com todos os temas -->
+    <!-- Grade com os temas do manual -->
     <div class="sec-head" id="ancora-temas">
-      <h2>Todos os temas do manual</h2>
+      <h2>Listagem de temas do manual</h2>
     </div>
     <div class="tgrid" id="grid-todos"></div>
 
@@ -242,7 +242,7 @@
 <!-- ================================================================
   PÁGINA: TEMA INTERNO  (#pg-interna)
   Exibida ao clicar em qualquer tema.
-  Todo o conteúdo é gerado dinamicamente pelo app.js (abrirTema).
+  O conteúdo é gerado dinamicamente pelo app.js (abrirTema).
   ================================================================ -->
 <div id="pg-interna" class="page">
 
