@@ -952,7 +952,7 @@ function filtrarPorTag(tag, botao) {
 
 // Aliases para compatibilidade com o HTML existente
 const renderTemas = renderizarListaTemas;
-const _ptItemHtml = htmlItemTema;
+const _ptItemHtml = criarItemTema;
 const _numSort = converterNumeroCapitulo;
 
 // -----------------------------------------------------------------
