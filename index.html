@@ -63,7 +63,7 @@
     <div class="acesso-titulo">Manual do Gestor Público</div>
     <div class="acesso-sub">Versão de desenvolvimento — acesso restrito</div>
     <div class="acesso-label">Senha de acesso</div>
-    <input class="acesso-input" type="password" id="acesso-senha" placeholder="••••••••">
+    <input class="acesso-input" type="password" id="acesso-senha" placeholder="••••••••" aria-label="Senha de acesso">
     <button class="acesso-btn" onclick="verificarAcesso()">Acessar</button>
     <div class="acesso-err" id="acesso-err">Senha incorreta. Tente novamente.</div>
     <div class="acesso-aviso">Esta versão está em desenvolvimento e sujeita a alterações.</div>
@@ -145,6 +145,7 @@
     </svg>
     <input type="text" id="h-inp"
       placeholder="Buscar no manual…"
+      aria-label="Buscar no manual"
       oninput="buscar(this.value)"
       onkeydown="if(event.key==='Enter') buscar(this.value)">
   </div>
@@ -164,11 +165,12 @@
   <section class="hero">
     <div class="hero-inner">
       <div class="hero-badge">⭐ <span id="hero-edicao"></span></div>
-      <h1 id="hero-titulo"></h1>
+      <h1 id="hero-titulo">Manual do Gestor Público</h1>
       <p id="hero-sub"></p>
       <div class="hero-busca">
         <input type="text" id="hero-inp"
           placeholder="Ex: diárias, licitação, adiantamento…"
+          aria-label="Buscar temas do manual"
           onkeydown="if(event.key==='Enter') buscar(this.value)">
         <button onclick="buscar(document.getElementById('hero-inp').value)">Buscar</button>
       </div>
@@ -257,7 +259,7 @@
       <div class="pg-meta">
         <div class="pg-ic" id="pg-ic"></div>
         <div>
-          <h1 id="pg-titulo"></h1>
+          <h1 id="pg-titulo">Tema do Manual</h1>
           <div class="pg-mr" id="pg-badges"></div>
         </div>
       </div>
@@ -307,6 +309,7 @@
       <!-- Campo de busca por texto -->
       <input type="text" id="pt-inp"
         placeholder="Filtrar temas…"
+        aria-label="Filtrar temas"
         style="width:100%;max-width:420px;padding:10px 16px;border-radius:var(--r-md);border:none;font-size:14px;color:var(--azul-esc);outline:none"
         oninput="filtrarTemas(this.value)">
       <!-- Chips de filtro por categoria — gerados pelo app.js (montarFiltrosTemas) -->
