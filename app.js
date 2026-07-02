@@ -209,7 +209,7 @@ function montarFiltrosTemas() {
   const containerFiltros = document.getElementById('pt-filtros');
   if (!containerFiltros) return;
 
-  [...todasAsTags].sort().forEach(tag => {
+  [...todasAsTags].sort((a, b) => a.localeCompare(b, 'pt-BR')).forEach(tag => {
     const nomeExibido = nomesAmigaveis[tag] || tag;
     const botao = document.createElement('button');
     botao.className = 'pt-filtro';
