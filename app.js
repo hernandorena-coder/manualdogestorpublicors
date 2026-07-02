@@ -19,6 +19,12 @@
 // DOMPurify é carregado via CDN no index.html antes deste script.
 // -----------------------------------------------------------------
 
+// Contador global para gerar IDs únicos de forma segura (sem Math.random)
+let _contadorId = 0;
+function gerarIdUnico(prefixo = 'id') {
+  return `${prefixo}_${++_contadorId}`;
+}
+
 function definirHTML(elemento, html) {
   if (typeof DOMPurify !== 'undefined') {
     // DOMPurify remove onclick por segurança — usamos data-acao em vez disso
@@ -27,7 +33,15 @@ function definirHTML(elemento, html) {
       FORCE_BODY: false
     });
   } else {
-    elemento.innerHTML = html;
+    // Fallback: criar elemento temporário e usar apenas nós de texto seguros
+    const temp = document.createElement('div');
+    // Sem DOMPurify, limpa scripts manualmente antes de inserir
+    const htmlLimpo = html
+      .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '')
+      .replace(/\son\w+\s*=/gi, ' data-removed=');
+    temp.innerHTML = htmlLimpo;
+    while (elemento.firstChild) elemento.removeChild(elemento.firstChild);
+    while (temp.firstChild) elemento.appendChild(temp.firstChild);
   }
 }
 
@@ -113,16 +127,25 @@ function inicializarInterface() {
     siteConfig.titulo + ' · ' + siteConfig.edicao +
     ' · Governo do Estado do Rio Grande do Sul';
 
-  // Estatísticas do hero (nº de temas, última atualização, etc.)
-  definirHTML(document.getElementById('hero-stats'), [
+  // Estatísticas do hero — construção DOM direta (sem innerHTML)
+  const heroStats = document.getElementById('hero-stats');
+  heroStats.replaceChildren();
+  [
     [temas.length, 'temas'],
     [siteConfig.ultima_atualizacao, 'última atualização'],
     ['RS', 'Governo do Estado']
-  ].map(([valor, label]) =>
-    `<div class="hero-stat"><strong>${valor}</strong><span>${label}</span></div>`
-  ).join(''));
+  ].forEach(([valor, label]) => {
+    const div = document.createElement('div');
+    div.className = 'hero-stat';
+    const strong = document.createElement('strong');
+    strong.textContent = valor;
+    const span = document.createElement('span');
+    span.textContent = label;
+    div.append(strong, span);
+    heroStats.appendChild(div);
+  });
 
-  // Menu de navegação principal
+  // Menu de navegação — HTML estático, sem dados do JSON
   definirHTML(document.getElementById('h-nav'), `
     <a href="#" data-acao="irParaHome" id="nav-inicio" class="on">Início</a>
     <a href="#" data-acao="irParaTemas" id="nav-temas">Temas</a>
@@ -149,46 +172,81 @@ function inicializarInterface() {
 function criarCardTema(tema) {
   const card = document.createElement('div');
   card.className = 'tc' + (tema.destaque ? ' dest' : '');
-  definirHTML(card, `
-    <div class="tc-ic">${tema.icone}</div>
-    <div class="tc-nm">${tema.nome}</div>
-    <div class="tc-ds">${tema.desc}</div>
-    <div class="tc-tags">${
-      tema.tags.map(tag =>
-        `<span class="tc-tag ${tag === 'novo' ? 'novo' : ''}">${
-          tag === 'novo' ? '🆕 Novo' : tag
-        }</span>`
-      ).join('')
-    }</div>`);
-  card.onclick = () => abrirTema(tema.id);
+  card.dataset.acao = 'abrirTema';
+  card.dataset.id = tema.id;
+
+  // Ícone
+  const ic = document.createElement('div');
+  ic.className = 'tc-ic';
+  ic.textContent = tema.icone;
+
+  // Nome
+  const nm = document.createElement('div');
+  nm.className = 'tc-nm';
+  nm.textContent = tema.nome;
+
+  // Descrição
+  const ds = document.createElement('div');
+  ds.className = 'tc-ds';
+  ds.textContent = tema.desc;
+
+  // Tags
+  const tagsDiv = document.createElement('div');
+  tagsDiv.className = 'tc-tags';
+  (tema.tags || []).forEach(tag => {
+    const span = document.createElement('span');
+    span.className = 'tc-tag' + (tag === 'novo' ? ' novo' : '');
+    span.textContent = tag === 'novo' ? '🆕 Novo' : tag;
+    tagsDiv.appendChild(span);
+  });
+
+  card.append(ic, nm, ds, tagsDiv);
   return card;
 }
 
 function montarCardsHome() {
-  // Grid de temas em destaque
-  temas
-    .filter(tema => tema.destaque)
-    .forEach(tema => document.getElementById('grid-dest').appendChild(criarCardTema(tema)));
-
-  // Grid com todos os temas
-  temas.forEach(tema =>
-    document.getElementById('grid-todos').appendChild(criarCardTema(tema))
-  );
+  const gridDest = document.getElementById('grid-dest');
+  const gridTodos = document.getElementById('grid-todos');
+  temas.filter(tema => tema.destaque).forEach(tema => gridDest.appendChild(criarCardTema(tema)));
+  temas.forEach(tema => gridTodos.appendChild(criarCardTema(tema)));
 }
 
 function montarFaqHome() {
-  definirHTML(document.getElementById('faq-home'), dados.faq_home.map(item =>
-    `<li><a href="#" data-acao="abrirTema" data-id="${item.tema_id}">${item.pergunta}</a></li>`
-  ).join(''));
+  const el = document.getElementById('faq-home');
+  el.replaceChildren();
+  dados.faq_home.forEach(item => {
+    const li = document.createElement('li');
+    const a = document.createElement('a');
+    a.href = '#';
+    a.dataset.acao = 'abrirTema';
+    a.dataset.id = item.tema_id;
+    a.textContent = item.pergunta;
+    li.appendChild(a);
+    el.appendChild(li);
+  });
 }
 
 function montarAtualizacoesHome() {
-  definirHTML(document.getElementById('atu-home'), dados.atualizacoes.map(atualizacao =>
-    `<div class="ai">
-      <span class="atu-d">${atualizacao.data}</span>
-      <div class="atu-t"><strong>${atualizacao.tema}:</strong> ${atualizacao.texto}</div>
-    </div>`
-  ).join(''));
+  const el = document.getElementById('atu-home');
+  el.replaceChildren();
+  dados.atualizacoes.forEach(atu => {
+    const div = document.createElement('div');
+    div.className = 'ai';
+
+    const span = document.createElement('span');
+    span.className = 'atu-d';
+    span.textContent = atu.data;
+
+    const texto = document.createElement('div');
+    texto.className = 'atu-t';
+    const strong = document.createElement('strong');
+    strong.textContent = atu.tema + ':';
+    texto.appendChild(strong);
+    texto.append(' ' + atu.texto);
+
+    div.append(span, texto);
+    el.appendChild(div);
+  });
 }
 
 function montarFiltrosTemas() {
@@ -296,21 +354,39 @@ function abrirTema(idTema) {
   document.getElementById('pg-resp').textContent =
     'Responsável pela atualização: ' + tema.responsavel;
 
-  definirHTML(document.getElementById('pg-badges'), `
-    <span class="pg-b v">✔ Atualizado — ${tema.atualizacao}</span>
-    ${tema.tags.includes('novo') ? '<span class="pg-b l">🆕 Novo</span>' : ''}`);
+  // Badges (atualizado, novo) — construção DOM direta
+  const pgBadges = document.getElementById('pg-badges');
+  pgBadges.replaceChildren();
+  const badgeV = document.createElement('span');
+  badgeV.className = 'pg-b v';
+  badgeV.textContent = '✔ Atualizado — ' + tema.atualizacao;
+  pgBadges.appendChild(badgeV);
+  if (tema.tags.includes('novo')) {
+    const badgeL = document.createElement('span');
+    badgeL.className = 'pg-b l';
+    badgeL.textContent = '🆕 Novo';
+    pgBadges.appendChild(badgeL);
+  }
 
   // Monta a navegação lateral (sumário)
   montarNavLateral(tema);
 
-  // Monta os chips de legislação na sidebar
-  definirHTML(document.getElementById('side-leg'), `<h4>Normas principais</h4>` +
-    tema.legislacao.slice(0, 4).map(lei =>
-      `<span class="lchip">${lei.nome.split(' ').slice(0, 2).join(' ')}</span>`
-    ).join(''));
+  // Chips de legislação na sidebar — construção DOM direta
+  const sideLeg = document.getElementById('side-leg');
+  sideLeg.replaceChildren();
+  const h4 = document.createElement('h4');
+  h4.textContent = 'Normas principais';
+  sideLeg.appendChild(h4);
+  tema.legislacao.slice(0, 4).forEach(lei => {
+    const chip = document.createElement('span');
+    chip.className = 'lchip';
+    chip.textContent = lei.nome.split(' ').slice(0, 2).join(' ');
+    sideLeg.appendChild(chip);
+  });
 
-  // Monta o conteúdo principal
-  definirHTML(document.getElementById('pg-cont'), montarConteudoTema(tema));
+  // Monta o conteúdo principal — construção DOM direta
+  const pgCont = document.getElementById('pg-cont');
+  pgCont.replaceChildren(montarConteudoTema(tema));
 
   mostrarPagina('pg-interna');
   iniciarScrollSpy();
@@ -325,182 +401,277 @@ function montarNavLateral(tema) {
     { id: 's-rel', titulo: 'Temas relacionados' }
   ];
 
-  definirHTML(document.getElementById('pg-nav'), secoes.map((secao, indice) =>
-    `<li>
-      <a href="#${secao.id}" class="pg-nav-a">
-        <span class="pn-num">${indice + 1}</span>${secao.titulo}
-      </a>
-    </li>`
-  ).join(''));
+  const nav = document.getElementById('pg-nav');
+  nav.replaceChildren();
+  secoes.forEach((secao, indice) => {
+    const li = document.createElement('li');
+    const a = document.createElement('a');
+    a.href = '#' + secao.id;
+    a.className = 'pg-nav-a';
+    const num = document.createElement('span');
+    num.className = 'pn-num';
+    num.textContent = indice + 1;
+    a.append(num, secao.titulo);
+    li.appendChild(a);
+    nav.appendChild(li);
+  });
+}
+
+// Cria um elemento com classe e textContent opcionais
+function criarEl(tag, className, texto) {
+  const el = document.createElement(tag);
+  if (className) el.className = className;
+  if (texto !== undefined) el.textContent = texto;
+  return el;
+}
+
+// Cria o título de seção com número
+function criarTituloSecao(num, titulo) {
+  const h2 = criarEl('h2', 'sec-t');
+  const span = criarEl('span', 'sec-num', num);
+  h2.append(span, titulo);
+  return h2;
 }
 
 function montarConteudoTema(tema) {
-  let html = '';
+  const fragment = document.createDocumentFragment();
 
   // Seções de conteúdo
   tema.secoes.forEach((secao, indice) => {
-    html += `<section class="sec" id="s${indice + 1}">
-      <h2 class="sec-t"><span class="sec-num">${indice + 1}</span>${secao.titulo}</h2>`;
-    secao.conteudo.forEach(bloco => { html += renderizarBloco(bloco); });
-    html += '</section>';
+    const section = document.createElement('section');
+    section.className = 'sec';
+    section.id = 's' + (indice + 1);
+    section.appendChild(criarTituloSecao(indice + 1, secao.titulo));
+    secao.conteudo.forEach(bloco => {
+      const el = renderizarBloco(bloco);
+      if (el) section.appendChild(el);
+    });
+    fragment.appendChild(section);
   });
 
   // Checklist operacional
-  const totalItensChecklist = tema.checklist ? tema.checklist.length : 0;
-  if (totalItensChecklist > 0) {
-    html += `<section class="sec" id="s-cl">
-      <h2 class="sec-t">
-        <span class="sec-num">${tema.secoes.length + 1}</span>Checklist operacional
-      </h2>
-      <p>Clique nos itens para marcar como concluído.</p>
-      <div class="cl-wrap">
-        <div class="cl-hd">
-          <h4>Processo completo — ${tema.nome}</h4>
-          <span id="cl-pct">0 / ${totalItensChecklist}</span>
-        </div>
-        <div id="cl-prog"><div id="cl-bar" style="width:0%"></div></div>
-        <ul class="cl" id="cl-lista">
-          ${tema.checklist.map(item =>
-            `<li data-acao="marcarChecklist"><div class="cb"></div><span>${item}</span></li>`
-          ).join('')}
-        </ul>
-      </div>
-    </section>`;
+  const totalItens = tema.checklist ? tema.checklist.length : 0;
+  if (totalItens > 0) {
+    const sec = document.createElement('section');
+    sec.className = 'sec';
+    sec.id = 's-cl';
+    sec.appendChild(criarTituloSecao(tema.secoes.length + 1, 'Checklist operacional'));
+
+    const p = criarEl('p', null, 'Clique nos itens para marcar como concluído.');
+    const wrap = criarEl('div', 'cl-wrap');
+    const hd = criarEl('div', 'cl-hd');
+    const h4 = criarEl('h4', null, 'Processo completo — ' + tema.nome);
+    const pct = criarEl('span', null, '0 / ' + totalItens);
+    pct.id = 'cl-pct';
+    hd.append(h4, pct);
+
+    const prog = criarEl('div');
+    prog.id = 'cl-prog';
+    const bar = criarEl('div');
+    bar.id = 'cl-bar';
+    bar.style.width = '0%';
+    prog.appendChild(bar);
+
+    const ul = criarEl('ul', 'cl');
+    ul.id = 'cl-lista';
+    tema.checklist.forEach(item => {
+      const li = document.createElement('li');
+      li.dataset.acao = 'marcarChecklist';
+      const cb = criarEl('div', 'cb');
+      const span = criarEl('span', null, item);
+      li.append(cb, span);
+      ul.appendChild(li);
+    });
+
+    wrap.append(hd, prog, ul);
+    sec.append(p, wrap);
+    fragment.appendChild(sec);
   }
 
   // Perguntas frequentes
-  html += `<section class="sec" id="s-faq">
-    <h2 class="sec-t">
-      <span class="sec-num">${tema.secoes.length + 2}</span>Perguntas frequentes
-    </h2>
-    <ul class="faq-l">
-      ${tema.faq.map(item => `
-        <li class="faq-i">
-          <button class="faq-btn" data-acao="toggleFaq">
-            <span class="faq-q">${item.pergunta}</span>
-            <i class="faq-ch">▾</i>
-          </button>
-          <div class="faq-r">${item.resposta}</div>
-        </li>`
-      ).join('')}
-    </ul>
-  </section>`;
+  const secFaq = document.createElement('section');
+  secFaq.className = 'sec';
+  secFaq.id = 's-faq';
+  secFaq.appendChild(criarTituloSecao(tema.secoes.length + 2, 'Perguntas frequentes'));
+  const ulFaq = criarEl('ul', 'faq-l');
+  tema.faq.forEach(item => {
+    const li = criarEl('li', 'faq-i');
+    const btn = criarEl('button', 'faq-btn');
+    btn.dataset.acao = 'toggleFaq';
+    const q = criarEl('span', 'faq-q', item.pergunta);
+    const ch = criarEl('i', 'faq-ch', '▾');
+    btn.append(q, ch);
+    const resp = criarEl('div', 'faq-r', item.resposta);
+    li.append(btn, resp);
+    ulFaq.appendChild(li);
+  });
+  secFaq.appendChild(ulFaq);
+  fragment.appendChild(secFaq);
 
   // Legislação relacionada
-  html += `<section class="sec" id="s-leg">
-    <h2 class="sec-t">
-      <span class="sec-num">${tema.secoes.length + 3}</span>Legislação relacionada
-    </h2>
-    <div class="lg-grid">
-      ${tema.legislacao.map(lei => {
-        const tipoFormatado = lei.tipo.toLowerCase();
-        const classeTipo =
-          tipoFormatado === 'dec' ? 'dec' :
-          tipoFormatado === 'res' ? 'res' :
-          tipoFormatado === 'port' ? 'port' :
-          (tipoFormatado === 'in' || tipoFormatado === 'instrução normativa') ? 'in' :
-          tipoFormatado === 'circ' ? 'circ' :
-          tipoFormatado === 'os' ? 'os' :
-          (tipoFormatado === 'lc' || tipoFormatado === 'lei complementar') ? 'lc' : '';
+  const secLeg = document.createElement('section');
+  secLeg.className = 'sec';
+  secLeg.id = 's-leg';
+  secLeg.appendChild(criarTituloSecao(tema.secoes.length + 3, 'Legislação relacionada'));
+  const lgGrid = criarEl('div', 'lg-grid');
+  tema.legislacao.forEach(lei => {
+    const tipoFormatado = lei.tipo.toLowerCase();
+    const classeTipo =
+      tipoFormatado === 'dec' ? 'dec' :
+      tipoFormatado === 'res' ? 'res' :
+      tipoFormatado === 'port' ? 'port' :
+      (tipoFormatado === 'in' || tipoFormatado === 'instrução normativa') ? 'in' :
+      tipoFormatado === 'circ' ? 'circ' :
+      tipoFormatado === 'os' ? 'os' :
+      (tipoFormatado === 'lc' || tipoFormatado === 'lei complementar') ? 'lc' : '';
 
-        const conteudoInterno = `
-          <span class="lg-tp ${classeTipo}">${lei.tipo}</span>
-          <div style="flex:1">
-            <div class="lg-nm">${lei.nome}${lei.link ? ' <span class="lg-link-icon">&#8599;</span>' : ''}</div>
-            <div class="lg-ds">${lei.desc}</div>
-          </div>`;
-
-        return lei.link
-          ? `<a href="${lei.link}" target="_blank" rel="noopener" class="lg-c clicavel" style="text-decoration:none">${conteudoInterno}</a>`
-          : `<div class="lg-c">${conteudoInterno}</div>`;
-      }).join('')}
-    </div>
-  </section>`;
+    const item = lei.link
+      ? document.createElement('a')
+      : document.createElement('div');
+    item.className = 'lg-c' + (lei.link ? ' clicavel' : '');
+    if (lei.link) {
+      item.href = lei.link;
+      item.target = '_blank';
+      item.rel = 'noopener';
+      item.style.textDecoration = 'none';
+    }
+    const badge = criarEl('span', 'lg-tp ' + classeTipo, lei.tipo);
+    const info = criarEl('div');
+    info.style.flex = '1';
+    const nm = criarEl('div', 'lg-nm', lei.nome);
+    if (lei.link) {
+      const icon = criarEl('span', 'lg-link-icon', '↗');
+      nm.appendChild(icon);
+    }
+    const ds = criarEl('div', 'lg-ds', lei.desc);
+    info.append(nm, ds);
+    item.append(badge, info);
+    lgGrid.appendChild(item);
+  });
+  secLeg.appendChild(lgGrid);
+  fragment.appendChild(secLeg);
 
   // Temas relacionados
-  html += `<section class="sec" id="s-rel">
-    <h2 class="sec-t">
-      <span class="sec-num">${tema.secoes.length + 4}</span>Temas relacionados
-    </h2>
-    <div class="rel-grid">
-      ${tema.relacionados.map(idRelacionado => {
-        const temaRelacionado = temas.find(t => t.id === idRelacionado);
-        if (!temaRelacionado) return '';
-        return `<div class="rel-c" data-acao="abrirTema" data-id="${temaRelacionado.id}">
-          <span style="font-size:22px">${temaRelacionado.icone}</span>
-          <div>
-            <div class="rel-nm">${temaRelacionado.nome}</div>
-            <div style="font-size:12px;color:var(--cinza-suav);margin-top:2px">
-              ${temaRelacionado.desc.split('.')[0]}
-            </div>
-          </div>
-        </div>`;
-      }).join('')}
-    </div>
-    <button class="btn-topo" data-acao="voltarTopo">
-      ↑ Voltar ao topo
-    </button>
-  </section>`;
+  const secRel = document.createElement('section');
+  secRel.className = 'sec';
+  secRel.id = 's-rel';
+  secRel.appendChild(criarTituloSecao(tema.secoes.length + 4, 'Temas relacionados'));
+  const relGrid = criarEl('div', 'rel-grid');
+  tema.relacionados.forEach(idRel => {
+    const temaRel = temas.find(t => t.id === idRel);
+    if (!temaRel) return;
+    const div = criarEl('div', 'rel-c');
+    div.dataset.acao = 'abrirTema';
+    div.dataset.id = temaRel.id;
+    const ic = criarEl('span', null, temaRel.icone);
+    ic.style.fontSize = '22px';
+    const info = document.createElement('div');
+    const nm = criarEl('div', 'rel-nm', temaRel.nome);
+    const ds = criarEl('div', null, temaRel.desc.split('.')[0]);
+    ds.style.cssText = 'font-size:12px;color:var(--cinza-suav);margin-top:2px';
+    info.append(nm, ds);
+    div.append(ic, info);
+    relGrid.appendChild(div);
+  });
+  const btnTopo = criarEl('button', 'btn-topo', '↑ Voltar ao topo');
+  btnTopo.dataset.acao = 'voltarTopo';
+  secRel.append(relGrid, btnTopo);
+  fragment.appendChild(secRel);
 
-  return html;
+  return fragment;
 }
 
 // -----------------------------------------------------------------
 // SEÇÃO 6 — RENDERIZAÇÃO DE BLOCOS DE CONTEÚDO
 // -----------------------------------------------------------------
+// Cada bloco retorna um elemento DOM (não uma string HTML)
+// Tipos: texto, lista, lista_numerada, info, atencao, sucesso,
+//        aviso, tabela, toggle_group, checklist_estatico, subtitulo
 
-// Cada bloco é uma unidade de conteúdo dentro de uma seção de tema
-// Tipos suportados: texto, lista, lista_numerada, info, atencao,
-//                  sucesso, aviso, tabela, toggle_group,
-//                  checklist_estatico, subtitulo
 function renderizarBloco(bloco) {
-  const iconesPorTipo = { info: '📌', atencao: '⚡', sucesso: '✔️', aviso: '⚠️' };
+  if (!bloco) return null;
 
-  if (bloco.tipo === 'texto')
-    return `<p>${bloco.valor}</p>`;
-
-  if (bloco.tipo === 'lista')
-    return `<ul>${bloco.itens.map(item => `<li>${item}</li>`).join('')}</ul>`;
-
-  if (bloco.tipo === 'lista_numerada')
-    return `<ol>${bloco.itens.map(item => `<li>${item}</li>`).join('')}</ol>`;
-
-  if (['info', 'atencao', 'sucesso', 'aviso'].includes(bloco.tipo))
-    return `<div class="box ${bloco.tipo}">
-      <span class="box-ic">${iconesPorTipo[bloco.tipo]}</span>
-      <div class="box-bd">
-        <p class="box-tl">${bloco.titulo}</p>
-        <p>${bloco.texto}</p>
-      </div>
-    </div>`;
-
-  if (bloco.tipo === 'tabela')
-    return `<div class="tw"><table>
-      <thead><tr>${bloco.cabecalho.map(col => `<th>${col}</th>`).join('')}</tr></thead>
-      <tbody>${bloco.linhas.map(linha =>
-        `<tr>${linha.map(celula => `<td>${celula}</td>`).join('')}</tr>`
-      ).join('')}</tbody>
-    </table></div>`;
-
-  if (bloco.tipo === 'toggle_group') {
-    const idUnico = 'tg_' + Math.random().toString(36).slice(2, 7);
-    return `<div class="toggle-group">
-      <button class="toggle-btn" data-acao="toggleGrupo" data-id="${idUnico}">
-        <span>${bloco.label}</span><i class="toggle-chevron">&#9662;</i>
-      </button>
-      <div class="toggle-body" id="${idUnico}">
-        <ul>${bloco.itens.map(item => `<li>${item}</li>`).join('')}</ul>
-      </div>
-    </div>`;
+  if (bloco.tipo === 'texto') {
+    const p = document.createElement('p');
+    p.textContent = bloco.valor;
+    return p;
   }
 
-  if (bloco.tipo === 'checklist_estatico')
-    return `<ul class="cl-estatico">${bloco.itens.map(item => `<li>${item}</li>`).join('')}</ul>`;
+  if (bloco.tipo === 'subtitulo') {
+    const p = criarEl('p', 'sec-subtitulo', bloco.valor);
+    return p;
+  }
 
-  if (bloco.tipo === 'subtitulo')
-    return `<p class="sec-subtitulo">${bloco.valor}</p>`;
+  if (bloco.tipo === 'lista' || bloco.tipo === 'lista_numerada') {
+    const ul = document.createElement(bloco.tipo === 'lista' ? 'ul' : 'ol');
+    (bloco.itens || []).forEach(item => {
+      const li = criarEl('li', null, item);
+      ul.appendChild(li);
+    });
+    return ul;
+  }
 
-  return ''; // tipo desconhecido — ignora silenciosamente
+  if (['info', 'atencao', 'sucesso', 'aviso'].includes(bloco.tipo)) {
+    const icones = { info: '📌', atencao: '⚡', sucesso: '✔️', aviso: '⚠️' };
+    const div = criarEl('div', 'box ' + bloco.tipo);
+    const ic = criarEl('span', 'box-ic', icones[bloco.tipo]);
+    const bd = criarEl('div', 'box-bd');
+    const tl = criarEl('p', 'box-tl', bloco.titulo);
+    const txt = criarEl('p', null, bloco.texto);
+    bd.append(tl, txt);
+    div.append(ic, bd);
+    return div;
+  }
+
+  if (bloco.tipo === 'tabela') {
+    const wrap = criarEl('div', 'tw');
+    const table = document.createElement('table');
+    const thead = document.createElement('thead');
+    const trHead = document.createElement('tr');
+    (bloco.cabecalho || []).forEach(col => {
+      const th = criarEl('th', null, col);
+      trHead.appendChild(th);
+    });
+    thead.appendChild(trHead);
+    const tbody = document.createElement('tbody');
+    (bloco.linhas || []).forEach(linha => {
+      const tr = document.createElement('tr');
+      linha.forEach(celula => {
+        const td = criarEl('td', null, celula);
+        tr.appendChild(td);
+      });
+      tbody.appendChild(tr);
+    });
+    table.append(thead, tbody);
+    wrap.appendChild(table);
+    return wrap;
+  }
+
+  if (bloco.tipo === 'toggle_group') {
+    const idUnico = gerarIdUnico('tg');
+    const div = criarEl('div', 'toggle-group');
+    const btn = criarEl('button', 'toggle-btn');
+    btn.dataset.acao = 'toggleGrupo';
+    btn.dataset.id = idUnico;
+    const spanLabel = criarEl('span', null, bloco.label);
+    const chevron = criarEl('i', 'toggle-chevron', '▾');
+    btn.append(spanLabel, chevron);
+    const body = criarEl('div', 'toggle-body');
+    body.id = idUnico;
+    const ul = document.createElement('ul');
+    (bloco.itens || []).forEach(item => ul.appendChild(criarEl('li', null, item)));
+    body.appendChild(ul);
+    div.append(btn, body);
+    return div;
+  }
+
+  if (bloco.tipo === 'checklist_estatico') {
+    const ul = criarEl('ul', 'cl-estatico');
+    (bloco.itens || []).forEach(item => ul.appendChild(criarEl('li', null, item)));
+    return ul;
+  }
+
+  return null; // tipo desconhecido
 }
 
 // Alias para compatibilidade com chamadas existentes no HTML
@@ -593,32 +764,61 @@ function buscar(termoBusca) {
     }
   });
 
-  // Exibe o cabeçalho de resultado
-  definirHTML(document.getElementById('busca-info'), resultados.length
-    ? `<strong>${resultados.length}</strong> tema(s) com resultados para <strong>"${termoBusca}"</strong>`
-    : `Nenhum resultado para <strong>"${termoBusca}"</strong>.`);
+  // Exibe o cabeçalho de resultado — construção DOM direta
+  const buscaInfo = document.getElementById('busca-info');
+  buscaInfo.replaceChildren();
+  if (resultados.length) {
+    const s1 = document.createElement('strong');
+    s1.textContent = resultados.length;
+    const s2 = document.createElement('strong');
+    s2.textContent = '"' + termoBusca + '"';
+    buscaInfo.append(s1, ' tema(s) com resultados para ', s2);
+  } else {
+    const s = document.createElement('strong');
+    s.textContent = '"' + termoBusca + '"';
+    buscaInfo.append('Nenhum resultado para ', s, '.');
+  }
+
+  const buscaLista = document.getElementById('busca-lista');
+  buscaLista.replaceChildren();
 
   if (!resultados.length) {
-    definirHTML(document.getElementById('busca-lista'), `<p style="color:var(--cinza-suav);margin-top:8px">Tente outros termos ou verifique a ortografia.</p>`);
+    const p = document.createElement('p');
+    p.style.cssText = 'color:var(--cinza-suav);margin-top:8px';
+    p.textContent = 'Tente outros termos ou verifique a ortografia.';
+    buscaLista.appendChild(p);
     return;
   }
 
   const MAXIMO_TRECHOS_POR_TEMA = 3;
-  definirHTML(document.getElementById('busca-lista'), resultados.map(({ tema, correspondencias }) => {
-    const nomeDestacado = destacarOcorrencia(tema.nome, new RegExp(termoEscapado, 'gi'));
-    const trechosHtml = correspondencias.slice(0, MAXIMO_TRECHOS_POR_TEMA).map(c =>
-      `<div class="ri-onde">${c.secao}</div>
-       <div class="ri-trecho">${c.trecho}</div>`
-    ).join('');
-    const maisOcorrencias = correspondencias.length > MAXIMO_TRECHOS_POR_TEMA
-      ? `<div class="ri-mais">+${correspondencias.length - MAXIMO_TRECHOS_POR_TEMA} ocorrência(s) neste tema</div>`
-      : '';
-    return `<div class="ri" data-acao="abrirTema" data-id="${tema.id}">
-      <span class="ri-tema-badge">${tema.icone} ${tema.nome}</span>
-      <h4>${nomeDestacado}</h4>
-      ${trechosHtml}${maisOcorrencias}
-    </div>`;
-  }).join(''));
+  resultados.forEach(({ tema, correspondencias }) => {
+    const card = criarEl('div', 'ri');
+    card.dataset.acao = 'abrirTema';
+    card.dataset.id = tema.id;
+
+    const badge = criarEl('span', 'ri-tema-badge', tema.icone + ' ' + tema.nome);
+    const h4 = criarEl('h4', null, tema.nome);
+
+    card.append(badge, h4);
+
+    correspondencias.slice(0, MAXIMO_TRECHOS_POR_TEMA).forEach(c => {
+      const onde = criarEl('div', 'ri-onde', c.secao);
+      // O trecho já tem <mark> para destacar — usamos definirHTML aqui pois
+      // o conteúdo é gerado internamente pela função destacarOcorrencia,
+      // não vem diretamente do JSON
+      const trecho = criarEl('div', 'ri-trecho');
+      definirHTML(trecho, c.trecho);
+      card.append(onde, trecho);
+    });
+
+    if (correspondencias.length > MAXIMO_TRECHOS_POR_TEMA) {
+      const mais = criarEl('div', 'ri-mais',
+        '+' + (correspondencias.length - MAXIMO_TRECHOS_POR_TEMA) + ' ocorrência(s) neste tema');
+      card.appendChild(mais);
+    }
+
+    buscaLista.appendChild(card);
+  });
 }
 
 // -----------------------------------------------------------------
@@ -658,17 +858,21 @@ function renderizarListaTemas(filtroTexto, filtroTag) {
   });
 
   if (!temasFiltrados.length) {
-    definirHTML(container, '<div class="pt-vazio">Nenhum tema encontrado para este filtro.</div>');
+    container.replaceChildren(criarEl('div', 'pt-vazio', 'Nenhum tema encontrado para este filtro.'));
     return;
   }
 
-  // Com filtro ativo: lista simples sem agrupamento
+  const fragment = document.createDocumentFragment();
+
+  // Com filtro ativo: lista simples
   if (textoBusca || tagBusca) {
-    definirHTML(container, `
-      <div class="pt-grupo">
-        <div class="pt-grupo-titulo">${temasFiltrados.length} tema(s) encontrado(s)</div>
-        <div class="pt-lista">${temasFiltrados.map(tema => htmlItemTema(tema)).join('')}</div>
-      </div>`);
+    const grupo = criarEl('div', 'pt-grupo');
+    const titulo = criarEl('div', 'pt-grupo-titulo', temasFiltrados.length + ' tema(s) encontrado(s)');
+    const lista = criarEl('div', 'pt-lista');
+    temasFiltrados.forEach(tema => lista.appendChild(criarItemTema(tema)));
+    grupo.append(titulo, lista);
+    fragment.appendChild(grupo);
+    container.replaceChildren(fragment);
     return;
   }
 
@@ -700,32 +904,41 @@ function renderizarListaTemas(filtroTexto, filtroTag) {
     grupos[grupo].push(tema);
   });
 
-  const ordemGrupos = [...prioridadeGrupos, 'geral'];
-  let html = '';
-  ordemGrupos.forEach(grupo => {
+  [...prioridadeGrupos, 'geral'].forEach(grupo => {
     if (!grupos[grupo] || !grupos[grupo].length) return;
     const nomeGrupo = nomesGrupos[grupo] || grupo.charAt(0).toUpperCase() + grupo.slice(1);
-    html += `<div class="pt-grupo">
-      <div class="pt-grupo-titulo">${nomeGrupo}</div>
-      <div class="pt-lista">${grupos[grupo].map(tema => htmlItemTema(tema)).join('')}</div>
-    </div>`;
+    const divGrupo = criarEl('div', 'pt-grupo');
+    const tituloGrupo = criarEl('div', 'pt-grupo-titulo', nomeGrupo);
+    const lista = criarEl('div', 'pt-lista');
+    grupos[grupo].forEach(tema => lista.appendChild(criarItemTema(tema)));
+    divGrupo.append(tituloGrupo, lista);
+    fragment.appendChild(divGrupo);
   });
-  definirHTML(container, html);
+
+  container.replaceChildren(fragment);
 }
 
-function htmlItemTema(tema) {
-  const tagsHtml = (tema.tags || []).map(tag => `<span class="pt-tag">${tag}</span>`).join('');
-  return `<div class="pt-item" data-acao="abrirTema" data-id="${tema.id}">
-    <div class="pt-ic">${tema.icone}</div>
-    <div class="pt-info">
-      <div class="pt-nome">${tema.nome}</div>
-      <div class="pt-desc">${tema.desc}</div>
-      ${tagsHtml ? `<div class="pt-tags">${tagsHtml}</div>` : ''}
-    </div>
-    <div class="pt-seta">›</div>
-  </div>`;
-}
+function criarItemTema(tema) {
+  const div = criarEl('div', 'pt-item');
+  div.dataset.acao = 'abrirTema';
+  div.dataset.id = tema.id;
 
+  const ic = criarEl('div', 'pt-ic', tema.icone);
+  const info = criarEl('div', 'pt-info');
+  const nome = criarEl('div', 'pt-nome', tema.nome);
+  const desc = criarEl('div', 'pt-desc', tema.desc);
+  info.append(nome, desc);
+
+  if (tema.tags && tema.tags.length) {
+    const tagsDiv = criarEl('div', 'pt-tags');
+    tema.tags.forEach(tag => tagsDiv.appendChild(criarEl('span', 'pt-tag', tag)));
+    info.appendChild(tagsDiv);
+  }
+
+  const seta = criarEl('div', 'pt-seta', '›');
+  div.append(ic, info, seta);
+  return div;
+}
 function filtrarTemas(texto) {
   renderizarListaTemas(texto, filtroTagAtivo);
 }
