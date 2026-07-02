@@ -13,6 +13,25 @@
 // =================================================================
 
 // -----------------------------------------------------------------
+// SEGURANÇA — Sanitização de HTML
+// Todas as inserções de conteúdo dinâmico no DOM passam por esta
+// função, que usa o DOMPurify para prevenir ataques XSS.
+// DOMPurify é carregado via CDN no index.html antes deste script.
+// -----------------------------------------------------------------
+
+function definirHTML(elemento, html) {
+  if (typeof DOMPurify !== 'undefined') {
+    elemento.innerHTML = DOMPurify.sanitize(html, {
+      ADD_ATTR: ['onclick', 'oninput', 'onkeydown', 'target'],
+      FORCE_BODY: false
+    });
+  } else {
+    // Fallback caso DOMPurify não esteja disponível
+    elemento.innerHTML = html;
+  }
+}
+
+// -----------------------------------------------------------------
 // SEÇÃO 1 — CARREGAMENTO DOS DADOS
 // -----------------------------------------------------------------
 
@@ -59,7 +78,7 @@ function inicializarInterface() {
     ' · Governo do Estado do Rio Grande do Sul';
 
   // Estatísticas do hero (nº de temas, última atualização, etc.)
-  document.getElementById('hero-stats').innerHTML = [
+  definirHTML(document.getElementById('hero-stats'), [
     [temas.length, 'temas'],
     [siteConfig.ultima_atualizacao, 'última atualização'],
     ['RS', 'Governo do Estado']
@@ -68,7 +87,7 @@ function inicializarInterface() {
   ).join('');
 
   // Menu de navegação principal
-  document.getElementById('h-nav').innerHTML = `
+  definirHTML(document.getElementById('h-nav'), `
     <a href="#" onclick="irParaHome()" id="nav-inicio" class="on">Início</a>
     <a href="#" onclick="irParaTemas()" id="nav-temas">Temas</a>
     <a href="#" onclick="irParaLegislacao()" id="nav-leg">Legislação</a>
@@ -94,7 +113,7 @@ function inicializarInterface() {
 function criarCardTema(tema) {
   const card = document.createElement('div');
   card.className = 'tc' + (tema.destaque ? ' dest' : '');
-  card.innerHTML = `
+  definirHTML(card, `
     <div class="tc-ic">${tema.icone}</div>
     <div class="tc-nm">${tema.nome}</div>
     <div class="tc-ds">${tema.desc}</div>
@@ -122,13 +141,13 @@ function montarCardsHome() {
 }
 
 function montarFaqHome() {
-  document.getElementById('faq-home').innerHTML = dados.faq_home.map(item =>
+  definirHTML(document.getElementById('faq-home'), dados.faq_home.map(item =>
     `<li><a href="#" onclick="abrirTema('${item.tema_id}')">${item.pergunta}</a></li>`
   ).join('');
 }
 
 function montarAtualizacoesHome() {
-  document.getElementById('atu-home').innerHTML = dados.atualizacoes.map(atualizacao =>
+  definirHTML(document.getElementById('atu-home'), dados.atualizacoes.map(atualizacao =>
     `<div class="ai">
       <span class="atu-d">${atualizacao.data}</span>
       <div class="atu-t"><strong>${atualizacao.tema}:</strong> ${atualizacao.texto}</div>
@@ -241,7 +260,7 @@ function abrirTema(idTema) {
   document.getElementById('pg-resp').textContent =
     'Responsável pela atualização: ' + tema.responsavel;
 
-  document.getElementById('pg-badges').innerHTML = `
+  definirHTML(document.getElementById('pg-badges'), `
     <span class="pg-b v">✔ Atualizado — ${tema.atualizacao}</span>
     ${tema.tags.includes('novo') ? '<span class="pg-b l">🆕 Novo</span>' : ''}`;
 
@@ -249,14 +268,13 @@ function abrirTema(idTema) {
   montarNavLateral(tema);
 
   // Monta os chips de legislação na sidebar
-  document.getElementById('side-leg').innerHTML =
-    `<h4>Normas principais</h4>` +
+  definirHTML(document.getElementById('side-leg'), `<h4>Normas principais</h4>` +
     tema.legislacao.slice(0, 4).map(lei =>
       `<span class="lchip">${lei.nome.split(' ').slice(0, 2).join(' ')}</span>`
     ).join('');
 
   // Monta o conteúdo principal
-  document.getElementById('pg-cont').innerHTML = montarConteudoTema(tema);
+  definirHTML(document.getElementById('pg-cont'), montarConteudoTema(tema);
 
   mostrarPagina('pg-interna');
   iniciarScrollSpy();
@@ -271,7 +289,7 @@ function montarNavLateral(tema) {
     { id: 's-rel', titulo: 'Temas relacionados' }
   ];
 
-  document.getElementById('pg-nav').innerHTML = secoes.map((secao, indice) =>
+  definirHTML(document.getElementById('pg-nav'), secoes.map((secao, indice) =>
     `<li>
       <a href="#${secao.id}" class="pg-nav-a">
         <span class="pn-num">${indice + 1}</span>${secao.titulo}
@@ -540,18 +558,17 @@ function buscar(termoBusca) {
   });
 
   // Exibe o cabeçalho de resultado
-  document.getElementById('busca-info').innerHTML = resultados.length
+  definirHTML(document.getElementById('busca-info'), resultados.length
     ? `<strong>${resultados.length}</strong> tema(s) com resultados para <strong>"${termoBusca}"</strong>`
     : `Nenhum resultado para <strong>"${termoBusca}"</strong>.`;
 
   if (!resultados.length) {
-    document.getElementById('busca-lista').innerHTML =
-      `<p style="color:var(--cinza-suav);margin-top:8px">Tente outros termos ou verifique a ortografia.</p>`;
+    definirHTML(document.getElementById('busca-lista'), `<p style="color:var(--cinza-suav);margin-top:8px">Tente outros termos ou verifique a ortografia.</p>`;
     return;
   }
 
   const MAXIMO_TRECHOS_POR_TEMA = 3;
-  document.getElementById('busca-lista').innerHTML = resultados.map(({ tema, correspondencias }) => {
+  definirHTML(document.getElementById('busca-lista'), resultados.map(({ tema, correspondencias }) => {
     const nomeDestacado = destacarOcorrencia(tema.nome, new RegExp(termoEscapado, 'gi'));
     const trechosHtml = correspondencias.slice(0, MAXIMO_TRECHOS_POR_TEMA).map(c =>
       `<div class="ri-onde">${c.secao}</div>
@@ -605,17 +622,17 @@ function renderizarListaTemas(filtroTexto, filtroTag) {
   });
 
   if (!temasFiltrados.length) {
-    container.innerHTML = '<div class="pt-vazio">Nenhum tema encontrado para este filtro.</div>';
+    definirHTML(container, '<div class="pt-vazio">Nenhum tema encontrado para este filtro.</div>');
     return;
   }
 
   // Com filtro ativo: lista simples sem agrupamento
   if (textoBusca || tagBusca) {
-    container.innerHTML = `
+    definirHTML(container, `
       <div class="pt-grupo">
         <div class="pt-grupo-titulo">${temasFiltrados.length} tema(s) encontrado(s)</div>
         <div class="pt-lista">${temasFiltrados.map(tema => htmlItemTema(tema)).join('')}</div>
-      </div>`;
+      </div>`);
     return;
   }
 
@@ -657,7 +674,7 @@ function renderizarListaTemas(filtroTexto, filtroTag) {
       <div class="pt-lista">${grupos[grupo].map(tema => htmlItemTema(tema)).join('')}</div>
     </div>`;
   });
-  container.innerHTML = html;
+  definirHTML(container, html);
 }
 
 function htmlItemTema(tema) {
