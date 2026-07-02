@@ -120,7 +120,7 @@ function inicializarInterface() {
     ['RS', 'Governo do Estado']
   ].map(([valor, label]) =>
     `<div class="hero-stat"><strong>${valor}</strong><span>${label}</span></div>`
-  ).join('');
+  ).join(''));
 
   // Menu de navegação principal
   definirHTML(document.getElementById('h-nav'), `
@@ -128,7 +128,7 @@ function inicializarInterface() {
     <a href="#" data-acao="irParaTemas" id="nav-temas">Temas</a>
     <a href="#" data-acao="irParaLegislacao" id="nav-leg">Legislação</a>
     <a href="#" data-acao="irParaContato" id="nav-contato">Entre em Contato</a>
-    <a href="#" data-acao="irParaCAGE" id="nav-cage">Sobre a CAGE</a>`;
+    <a href="#" data-acao="irParaCAGE" id="nav-cage">Sobre a CAGE</a>`);
 
   // Cards de temas na home
   montarCardsHome();
@@ -159,7 +159,7 @@ function criarCardTema(tema) {
           tag === 'novo' ? '🆕 Novo' : tag
         }</span>`
       ).join('')
-    }</div>`;
+    }</div>`);
   card.onclick = () => abrirTema(tema.id);
   return card;
 }
@@ -179,7 +179,7 @@ function montarCardsHome() {
 function montarFaqHome() {
   definirHTML(document.getElementById('faq-home'), dados.faq_home.map(item =>
     `<li><a href="#" data-acao="abrirTema" data-id="${item.tema_id}">${item.pergunta}</a></li>`
-  ).join('');
+  ).join(''));
 }
 
 function montarAtualizacoesHome() {
@@ -188,7 +188,7 @@ function montarAtualizacoesHome() {
       <span class="atu-d">${atualizacao.data}</span>
       <div class="atu-t"><strong>${atualizacao.tema}:</strong> ${atualizacao.texto}</div>
     </div>`
-  ).join('');
+  ).join(''));
 }
 
 function montarFiltrosTemas() {
@@ -298,7 +298,7 @@ function abrirTema(idTema) {
 
   definirHTML(document.getElementById('pg-badges'), `
     <span class="pg-b v">✔ Atualizado — ${tema.atualizacao}</span>
-    ${tema.tags.includes('novo') ? '<span class="pg-b l">🆕 Novo</span>' : ''}`;
+    ${tema.tags.includes('novo') ? '<span class="pg-b l">🆕 Novo</span>' : ''}`);
 
   // Monta a navegação lateral (sumário)
   montarNavLateral(tema);
@@ -307,10 +307,10 @@ function abrirTema(idTema) {
   definirHTML(document.getElementById('side-leg'), `<h4>Normas principais</h4>` +
     tema.legislacao.slice(0, 4).map(lei =>
       `<span class="lchip">${lei.nome.split(' ').slice(0, 2).join(' ')}</span>`
-    ).join('');
+    ).join(''));
 
   // Monta o conteúdo principal
-  definirHTML(document.getElementById('pg-cont'), montarConteudoTema(tema);
+  definirHTML(document.getElementById('pg-cont'), montarConteudoTema(tema));
 
   mostrarPagina('pg-interna');
   iniciarScrollSpy();
@@ -331,7 +331,7 @@ function montarNavLateral(tema) {
         <span class="pn-num">${indice + 1}</span>${secao.titulo}
       </a>
     </li>`
-  ).join('');
+  ).join(''));
 }
 
 function montarConteudoTema(tema) {
@@ -596,10 +596,10 @@ function buscar(termoBusca) {
   // Exibe o cabeçalho de resultado
   definirHTML(document.getElementById('busca-info'), resultados.length
     ? `<strong>${resultados.length}</strong> tema(s) com resultados para <strong>"${termoBusca}"</strong>`
-    : `Nenhum resultado para <strong>"${termoBusca}"</strong>.`;
+    : `Nenhum resultado para <strong>"${termoBusca}"</strong>.`);
 
   if (!resultados.length) {
-    definirHTML(document.getElementById('busca-lista'), `<p style="color:var(--cinza-suav);margin-top:8px">Tente outros termos ou verifique a ortografia.</p>`;
+    definirHTML(document.getElementById('busca-lista'), `<p style="color:var(--cinza-suav);margin-top:8px">Tente outros termos ou verifique a ortografia.</p>`);
     return;
   }
 
@@ -618,7 +618,7 @@ function buscar(termoBusca) {
       <h4>${nomeDestacado}</h4>
       ${trechosHtml}${maisOcorrencias}
     </div>`;
-  }).join('');
+  }).join(''));
 }
 
 // -----------------------------------------------------------------
