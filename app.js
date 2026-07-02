@@ -22,11 +22,21 @@
 function definirHTML(elemento, html) {
   if (typeof DOMPurify !== 'undefined') {
     elemento.innerHTML = DOMPurify.sanitize(html, {
-      ADD_ATTR: ['onclick', 'oninput', 'onkeydown', 'target'],
-      FORCE_BODY: false
+      ADD_ATTR: ['onclick', 'oninput', 'onkeydown', 'onkeyup', 'target', 'rel'],
+      ADD_TAGS: ['svg', 'path', 'circle'],
+      ALLOW_DATA_ATTR: false,
+      FORCE_BODY: false,
+      // Permite handlers de eventos necessários para a navegação do site
+      ALLOWED_ATTR: [
+        'class', 'id', 'style', 'href', 'src', 'alt', 'target', 'rel',
+        'onclick', 'oninput', 'onkeydown', 'onkeyup',
+        'type', 'placeholder', 'value', 'width', 'height',
+        'viewBox', 'fill', 'stroke', 'stroke-width', 'stroke-linecap', 'stroke-linejoin',
+        'd', 'cx', 'cy', 'r', 'x', 'y', 'rx', 'ry',
+        'xmlns', 'aria-label', 'role', 'tabindex'
+      ]
     });
   } else {
-    // Fallback caso DOMPurify não esteja disponível
     elemento.innerHTML = html;
   }
 }
