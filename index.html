@@ -185,7 +185,7 @@
     <!-- Grade de temas em destaque (marcados como destaque no conteudo.json) -->
     <div class="sec-head">
       <h2>Temas mais acessados</h2>
-      <a href="#" onclick="document.getElementById('ancora-temas').scrollIntoView({behavior:'smooth'})">Ver todos →</a>
+      <a href="#ancora-temas" onclick="document.getElementById('ancora-temas').scrollIntoView({behavior:'smooth'})">Ver todos →</a>
     </div>
     <div class="tgrid" id="grid-dest"></div>
 
@@ -251,8 +251,8 @@
     <div class="pg-hi">
       <!-- Breadcrumb: Início › Temas › Nome do tema -->
       <div class="bc">
-        <a href="#" onclick="goHome()">Início</a><span>›</span>
-        <a href="#" onclick="goHome()">Temas</a><span>›</span>
+        <a href="#pg-home" onclick="goHome()">Início</a><span>›</span>
+        <a href="#pg-temas" onclick="goTemas()">Temas</a><span>›</span>
         <span id="bc-tema" style="color:rgba(255,255,255,.85)"></span>
       </div>
       <!-- Ícone + título + badges (atualizado, novo) -->
