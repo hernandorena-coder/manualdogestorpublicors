@@ -82,10 +82,8 @@
   --altura-header:   70px;
   --altura-acess:    36px;
   --padding-pagina:  28px;
-}
 
-/* Aliases de compatibilidade com o HTML existente */
-:root {
+  /* Aliases de compatibilidade com o HTML existente */
   --azul-esc:   var(--azul-escuro);
   --azul-med:   var(--azul-medio);
   --azul-cla:   var(--azul-claro);
@@ -114,6 +112,7 @@
 
 html {
   scroll-behavior: smooth;
+  font-size: 1.0rem; /* valor padrão — alterado pelo JS */
 }
 
 
@@ -2484,9 +2483,6 @@ footer {
 /* Tamanho de fonte ajustável via JS (função ajustarFonte)
    Os elementos usam unidades relativas (em) para responder ao
    font-size definido no <html> pelo JavaScript               */
-html {
-  font-size: 1.0rem; /* valor padrão — alterado pelo JS */
-}
 
 body p,
 body li,
