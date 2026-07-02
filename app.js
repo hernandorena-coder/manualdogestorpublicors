@@ -65,7 +65,7 @@ document.addEventListener('click', function(e) {
     case 'toggleFaq':       toggleFaq(el); break;
     case 'toggleGrupo':     toggleGrupo(el, id); break;
     case 'marcarChecklist': marcarChecklist(el.closest('li')); break;
-    case 'restaurarVersao': restaurarVersao(id, parseInt(versao)); break;
+    case 'restaurarVersao': restaurarVersao(id, Number.parseInt(versao)); break;
     case 'filtrarPorTag':   filtrarPorTag(id, el); break;
     case 'buscar':
       const inp = document.getElementById('hero-inp');
@@ -828,8 +828,8 @@ function buscar(termoBusca) {
 // Converte "20-21" → 20, "1" → 1, para ordenação correta por capítulo
 function converterNumeroCapitulo(numero) {
   if (!numero && numero !== 0) return 999;
-  const valor = parseInt(String(numero).split('-')[0]);
-  return isNaN(valor) ? 999 : valor;
+  const valor = Number.parseInt(String(numero).split('-')[0]);
+  return Number.isNaN(valor) ? 999 : valor;
 }
 
 let filtroTagAtivo = ''; // tag selecionada no filtro de temas
