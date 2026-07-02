@@ -21,25 +21,51 @@
 
 function definirHTML(elemento, html) {
   if (typeof DOMPurify !== 'undefined') {
+    // DOMPurify remove onclick por segurança — usamos data-acao em vez disso
     elemento.innerHTML = DOMPurify.sanitize(html, {
-      ADD_ATTR: ['onclick', 'oninput', 'onkeydown', 'onkeyup', 'target', 'rel'],
-      ADD_TAGS: ['svg', 'path', 'circle'],
-      ALLOW_DATA_ATTR: false,
-      FORCE_BODY: false,
-      // Permite handlers de eventos necessários para a navegação do site
-      ALLOWED_ATTR: [
-        'class', 'id', 'style', 'href', 'src', 'alt', 'target', 'rel',
-        'onclick', 'oninput', 'onkeydown', 'onkeyup',
-        'type', 'placeholder', 'value', 'width', 'height',
-        'viewBox', 'fill', 'stroke', 'stroke-width', 'stroke-linecap', 'stroke-linejoin',
-        'd', 'cx', 'cy', 'r', 'x', 'y', 'rx', 'ry',
-        'xmlns', 'aria-label', 'role', 'tabindex'
-      ]
+      ADD_ATTR: ['data-acao', 'data-id', 'data-versao', 'target', 'rel'],
+      FORCE_BODY: false
     });
   } else {
     elemento.innerHTML = html;
   }
 }
+
+// Event delegation global — captura cliques em elementos com data-acao
+// em vez de usar onclick inline (que é bloqueado pelo DOMPurify por segurança)
+document.addEventListener('click', function(e) {
+  const el = e.target.closest('[data-acao]');
+  if (!el) return;
+  const acao = el.getAttribute('data-acao');
+  const id = el.getAttribute('data-id');
+  const versao = el.getAttribute('data-versao');
+
+  switch(acao) {
+    case 'abrirTema':       abrirTema(id); break;
+    case 'irParaHome':      irParaHome(); break;
+    case 'irParaTemas':     irParaTemas(); break;
+    case 'irParaLegislacao': irParaLegislacao(); break;
+    case 'irParaCAGE':      irParaCAGE(); break;
+    case 'irParaContato':   irParaContato(); break;
+    case 'imprimirTema':    imprimirTema(); break;
+    case 'toggleFaq':       toggleFaq(el); break;
+    case 'toggleGrupo':     toggleGrupo(el, id); break;
+    case 'marcarChecklist': marcarChecklist(el.closest('li')); break;
+    case 'restaurarVersao': restaurarVersao(id, parseInt(versao)); break;
+    case 'filtrarPorTag':   filtrarPorTag(id, el); break;
+    case 'buscar':
+      const inp = document.getElementById('hero-inp');
+      if (inp) buscar(inp.value);
+      break;
+    case 'buscarPt':
+      const inpPt = document.getElementById('pt-inp');
+      if (inpPt) filtrarTemas(inpPt.value);
+      break;
+    case 'voltarTopo':
+      window.scrollTo({top:0, behavior:'smooth'});
+      break;
+  }
+});
 
 // -----------------------------------------------------------------
 // SEÇÃO 1 — CARREGAMENTO DOS DADOS
@@ -98,11 +124,11 @@ function inicializarInterface() {
 
   // Menu de navegação principal
   definirHTML(document.getElementById('h-nav'), `
-    <a href="#" onclick="irParaHome()" id="nav-inicio" class="on">Início</a>
-    <a href="#" onclick="irParaTemas()" id="nav-temas">Temas</a>
-    <a href="#" onclick="irParaLegislacao()" id="nav-leg">Legislação</a>
-    <a href="#" onclick="irParaContato()" id="nav-contato">Entre em Contato</a>
-    <a href="#" onclick="irParaCAGE()" id="nav-cage">Sobre a CAGE</a>`;
+    <a href="#" data-acao="irParaHome" id="nav-inicio" class="on">Início</a>
+    <a href="#" data-acao="irParaTemas" id="nav-temas">Temas</a>
+    <a href="#" data-acao="irParaLegislacao" id="nav-leg">Legislação</a>
+    <a href="#" data-acao="irParaContato" id="nav-contato">Entre em Contato</a>
+    <a href="#" data-acao="irParaCAGE" id="nav-cage">Sobre a CAGE</a>`;
 
   // Cards de temas na home
   montarCardsHome();
@@ -152,7 +178,7 @@ function montarCardsHome() {
 
 function montarFaqHome() {
   definirHTML(document.getElementById('faq-home'), dados.faq_home.map(item =>
-    `<li><a href="#" onclick="abrirTema('${item.tema_id}')">${item.pergunta}</a></li>`
+    `<li><a href="#" data-acao="abrirTema" data-id="${item.tema_id}">${item.pergunta}</a></li>`
   ).join('');
 }
 
@@ -335,7 +361,7 @@ function montarConteudoTema(tema) {
         <div id="cl-prog"><div id="cl-bar" style="width:0%"></div></div>
         <ul class="cl" id="cl-lista">
           ${tema.checklist.map(item =>
-            `<li onclick="marcarChecklist(this)"><div class="cb"></div><span>${item}</span></li>`
+            `<li data-acao="marcarChecklist"><div class="cb"></div><span>${item}</span></li>`
           ).join('')}
         </ul>
       </div>
@@ -350,7 +376,7 @@ function montarConteudoTema(tema) {
     <ul class="faq-l">
       ${tema.faq.map(item => `
         <li class="faq-i">
-          <button class="faq-btn" onclick="toggleFaq(this)">
+          <button class="faq-btn" data-acao="toggleFaq">
             <span class="faq-q">${item.pergunta}</span>
             <i class="faq-ch">▾</i>
           </button>
@@ -400,7 +426,7 @@ function montarConteudoTema(tema) {
       ${tema.relacionados.map(idRelacionado => {
         const temaRelacionado = temas.find(t => t.id === idRelacionado);
         if (!temaRelacionado) return '';
-        return `<div class="rel-c" onclick="abrirTema('${temaRelacionado.id}')">
+        return `<div class="rel-c" data-acao="abrirTema" data-id="${temaRelacionado.id}">
           <span style="font-size:22px">${temaRelacionado.icone}</span>
           <div>
             <div class="rel-nm">${temaRelacionado.nome}</div>
@@ -411,7 +437,7 @@ function montarConteudoTema(tema) {
         </div>`;
       }).join('')}
     </div>
-    <button class="btn-topo" onclick="window.scrollTo({top:0,behavior:'smooth'})">
+    <button class="btn-topo" data-acao="voltarTopo">
       ↑ Voltar ao topo
     </button>
   </section>`;
@@ -459,7 +485,7 @@ function renderizarBloco(bloco) {
   if (bloco.tipo === 'toggle_group') {
     const idUnico = 'tg_' + Math.random().toString(36).slice(2, 7);
     return `<div class="toggle-group">
-      <button class="toggle-btn" onclick="toggleGrupo(this,'${idUnico}')">
+      <button class="toggle-btn" data-acao="toggleGrupo" data-id="${idUnico}">
         <span>${bloco.label}</span><i class="toggle-chevron">&#9662;</i>
       </button>
       <div class="toggle-body" id="${idUnico}">
@@ -587,7 +613,7 @@ function buscar(termoBusca) {
     const maisOcorrencias = correspondencias.length > MAXIMO_TRECHOS_POR_TEMA
       ? `<div class="ri-mais">+${correspondencias.length - MAXIMO_TRECHOS_POR_TEMA} ocorrência(s) neste tema</div>`
       : '';
-    return `<div class="ri" onclick="abrirTema('${tema.id}')">
+    return `<div class="ri" data-acao="abrirTema" data-id="${tema.id}">
       <span class="ri-tema-badge">${tema.icone} ${tema.nome}</span>
       <h4>${nomeDestacado}</h4>
       ${trechosHtml}${maisOcorrencias}
@@ -689,7 +715,7 @@ function renderizarListaTemas(filtroTexto, filtroTag) {
 
 function htmlItemTema(tema) {
   const tagsHtml = (tema.tags || []).map(tag => `<span class="pt-tag">${tag}</span>`).join('');
-  return `<div class="pt-item" onclick="abrirTema('${tema.id}')">
+  return `<div class="pt-item" data-acao="abrirTema" data-id="${tema.id}">
     <div class="pt-ic">${tema.icone}</div>
     <div class="pt-info">
       <div class="pt-nome">${tema.nome}</div>
