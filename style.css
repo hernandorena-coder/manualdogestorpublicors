@@ -176,7 +176,7 @@ button {
 
 .btn-ac:hover,
 .btn-ac.on {
-  background: rgba(255, 255, 255, .25);
+  background: rgba(0, 20, 60, .35);
   color: #fff;
   border-color: rgba(255, 255, 255, .5);
 }
@@ -301,13 +301,13 @@ header {
 .h-nav a:hover,
 .h-nav a.on {
   color: #fff;
-  background: rgba(255, 255, 255, .22);
+  background: rgba(0, 20, 60, .30);
 }
 
 /* Botão de menu mobile */
 #btn-mob {
   display: none;
-  background: rgba(255, 255, 255, .2);
+  background: rgba(0, 20, 60, .28);
   border: 1px solid rgba(255, 255, 255, .2);
   color: #fff;
   padding: 8px 12px;
@@ -362,7 +362,7 @@ header {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  background: rgba(255, 255, 255, .12);
+  background: rgba(0, 20, 60, .25);
   border: 1px solid rgba(255, 255, 255, .2);
   color: rgba(255, 255, 255, 1);
   font-size: 0.75rem;
@@ -1627,7 +1627,7 @@ header {
 }
 
 .pt-filtro {
-  background: rgba(255, 255, 255, .25);
+  background: rgba(0, 20, 60, .35);
   color: #fff;
   border: 1px solid rgba(255, 255, 255, .25);
   border-radius: 20px;
