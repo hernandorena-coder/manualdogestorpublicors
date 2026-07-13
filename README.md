@@ -6,20 +6,15 @@ Site oficial do Manual do Gestor Público da Contadoria e Auditoria-Geral do Est
 
 ---
 
-## Escopo atual — MVP 2026
+## Escopo desta versão
 
-O objetivo desta primeira versão é publicar o Manual do Gestor Público como site público de consulta, acessível a gestores e servidores do Estado do RS.
+Esta entrega contempla exclusivamente o portal público de consulta do Manual do Gestor Público.
 
-**O que está no escopo do MVP:**
-- Site público com navegação, busca e exportação de PDF
-- Conteúdo editável via `conteudo.json`
-- Publicação automática via GitHub + Cloudflare Pages
+O módulo administrativo de edição de conteúdo foi deliberadamente excluído do escopo desta versão, pois sua implementação definitiva dependerá da arquitetura de autenticação institucional (SSO/SEFAZ), controle de usuários e demais requisitos de segurança que serão tratados em etapa posterior.
 
-**O que está fora do escopo desta versão (backlog):**
-- Painel de edição interno (em desenvolvimento separado)
-- Autenticação institucional (SSO/SEFAZ)
-- Integração com banco de dados ou APIs
-- Domínio institucional (`sefaz.rs.gov.br`)
+> **Nota sobre o histórico do repositório:** commits anteriores contêm um arquivo `admin.html` referente ao protótipo do módulo administrativo. Esse arquivo foi removido do repositório antes desta entrega, pois não integra o escopo do MVP e não deve ser considerado na análise desta versão.
+
+> **Nota sobre o conteúdo do manual:** os textos e links de legislação presentes no `conteudo.json` são provisórios, provenientes da edição anterior do manual, inseridos apenas para fins de desenvolvimento e validação técnica da plataforma. O conteúdo definitivo está sendo redigido pelas áreas responsáveis e será atualizado antes da publicação oficial. Links de legislação podem estar desatualizados ou indisponíveis nesta fase.
 
 ---
 
@@ -146,8 +141,8 @@ Acesse `http://localhost:8000` no navegador.
 ## Melhorias planejadas
 
 - [ ] Migrar para domínio institucional (`sefaz.rs.gov.br`)
-- [ ] Integração com SharePoint via Microsoft Graph API (documento técnico disponível)
 - [ ] Melhoria do mecanismo de busca (normalização de termos, busca aproximada)
+- [ ] Melhoria da exportação de PDF (correção de formatação em listas e caracteres especiais)
 
 ---
 
