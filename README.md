@@ -2,8 +2,24 @@
 
 Site oficial do Manual do Gestor Público da Contadoria e Auditoria-Geral do Estado do Rio Grande do Sul (CAGE RS), em substituição ao antigo documento PDF.
 
-🔗 **Site:** https://manualdogestorpublicors.pages.dev  
-🔧 **Painel de edição:** https://manualdogestorpublicors.pages.dev/admin.html
+🔗 **Site:** https://manualdogestorpublicors.pages.dev
+
+---
+
+## Escopo atual — MVP 2026
+
+O objetivo desta primeira versão é publicar o Manual do Gestor Público como site público de consulta, acessível a gestores e servidores do Estado do RS.
+
+**O que está no escopo do MVP:**
+- Site público com navegação, busca e exportação de PDF
+- Conteúdo editável via `conteudo.json`
+- Publicação automática via GitHub + Cloudflare Pages
+
+**O que está fora do escopo desta versão (backlog):**
+- Painel de edição interno (em desenvolvimento separado)
+- Autenticação institucional (SSO/SEFAZ)
+- Integração com banco de dados ou APIs
+- Domínio institucional (`sefaz.rs.gov.br`)
 
 ---
 
@@ -13,9 +29,9 @@ Site oficial do Manual do Gestor Público da Contadoria e Auditoria-Geral do Est
 ├── index.html        — Estrutura HTML do site público
 ├── style.css         — Visual e design (22 seções comentadas)
 ├── app.js            — Lógica do site (12 seções comentadas)
-├── conteudo.json     — Todo o conteúdo dos temas do manual
-├── admin.html        — Painel de edição interno (acesso restrito)
-└── netlify.toml      — Configuração de headers CORS para o Supabase
+├── conteudo.json     — Conteúdo dos temas do manual
+├── libs/             — Bibliotecas JavaScript (jsPDF, DOMPurify)
+└── netlify.toml      — Configuração de headers CORS
 ```
 
 ---
@@ -28,7 +44,7 @@ O site é uma **Single Page Application (SPA)** — uma única página HTML que 
 1. O navegador carrega o `index.html`
 2. O `app.js` faz um `fetch` do `conteudo.json`
 3. O JavaScript preenche todas as seções da página com os dados do JSON
-4. A navegação entre "páginas" é feita mostrando/escondendo `<div>` s com a classe `.page`
+4. A navegação entre "páginas" é feita mostrando/escondendo `<div>`s com a classe `.page`
 
 ---
 
@@ -95,21 +111,7 @@ Cada seção (`secoes`) contém um array de blocos (`conteudo`). Os tipos dispon
 
 ## Como editar o conteúdo
 
-### Opção 1 — Painel de edição (recomendado)
-
-Acesse o painel em `/admin.html`, faça login, edite o tema desejado e clique em **Exportar JSON**. Depois suba o arquivo `conteudo.json` gerado neste repositório.
-
-**Usuários do painel:**
-
-| Usuário | Perfil | Pode exportar JSON? |
-|---|---|---|
-| `cage` | Editor | Não |
-| `admin` | Admin | Sim |
-| `admin-cage` | Admin | Sim |
-
-### Opção 2 — Edição direta no GitHub
-
-Para correções pequenas, edite o `conteudo.json` diretamente pelo editor do GitHub. O Cloudflare Pages detecta o commit e publica automaticamente em 1-2 minutos.
+Edite o `conteudo.json` diretamente pelo editor do GitHub. O Cloudflare Pages detecta o commit e publica automaticamente em 1-2 minutos.
 
 ---
 
@@ -118,40 +120,12 @@ Para correções pequenas, edite o `conteudo.json` diretamente pelo editor do Gi
 | Componente | Serviço | Observação |
 |---|---|---|
 | Hospedagem | Cloudflare Pages (gratuito) | Deploy automático a cada commit |
-| Banco de dados do painel | Supabase (gratuito) | Status, notas, histórico e usuários |
 | Repositório | GitHub | Fonte oficial do código e conteúdo |
 | Domínio | pages.dev (provisório) | Migrar para sefaz.rs.gov.br quando possível |
 
 ---
 
-## Painel de edição (admin.html)
-
-O painel é um arquivo HTML estático com autenticação própria. Os dados de colaboração da equipe (status editorial, notas internas, histórico de edições e usuários) são armazenados no **Supabase**.
-
-### Tabelas no Supabase
-
-| Tabela | Finalidade |
-|---|---|
-| `usuarios_painel` | Usuários e senhas do painel |
-| `status_temas` | Status editorial de cada tema |
-| `notas_internas` | Notas da equipe por tema |
-| `historico_edicoes` | Log de ações com usuário e horário |
-| `temas_conteudo` | Rascunho colaborativo do conteúdo |
-| `temas_versoes` | Últimas 3 versões exportadas por tema |
-
-### Fluxo editorial
-
-```
-Editor edita → Salva (vai para Supabase)
-     ↓
-Admin revisa → Aprova → Exporta JSON
-     ↓
-Sobe no GitHub → Cloudflare publica → Site atualizado
-```
-
----
-
-## Desenvolvimento
+## Desenvolvimento local
 
 Este projeto não requer ferramentas de build — é HTML/CSS/JS puro. Para testar localmente:
 
@@ -173,9 +147,7 @@ Acesse `http://localhost:8000` no navegador.
 
 - [ ] Migrar para domínio institucional (`sefaz.rs.gov.br`)
 - [ ] Integração com SharePoint via Microsoft Graph API (documento técnico disponível)
-- [ ] Separar `admin.html` em `admin.html` + `admin.css` + `admin.js`
-- [ ] Integração direta com API do GitHub para publicação sem upload manual
-- [ ] Redefinição de senha por e-mail
+- [ ] Melhoria do mecanismo de busca (normalização de termos, busca aproximada)
 
 ---
 
