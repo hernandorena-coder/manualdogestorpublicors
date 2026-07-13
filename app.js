@@ -687,11 +687,11 @@ const renderBloco = renderizarBloco;
 // SEÇÃO 7 — BUSCA FULL-TEXT
 // -----------------------------------------------------------------
 
-// Extrai todo o texto indexável de um tema para a busca
+// Extrai o conteúdo indexável de um tema para a busca
 function extrairTextoTema(tema) {
   const trechos = [];
   const adicionar = (secao, texto) => {
-    if (texto && texto.trim()) trechos.push({ secao, texto: texto.trim() });
+    if (texto?.trim()) trechos.push({ secao, texto: texto.trim() });
   };
 
   // Metadados do tema
@@ -740,7 +740,7 @@ function buscar(termoBusca) {
   termoBusca = (termoBusca || '').trim();
   if (!termoBusca) return;
 
-  const termoEscapado = termoBusca.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const termoEscapado = termoBusca.replace(/[.*+?^${}()|[\]\\]/g, String.raw`\$&`);
   mostrarPagina('pg-busca');
 
   const resultados = [];
@@ -911,7 +911,7 @@ function renderizarListaTemas(filtroTexto, filtroTag) {
   });
 
   [...prioridadeGrupos, 'geral'].forEach(grupo => {
-    if (!grupos[grupo] || !grupos[grupo].length) return;
+    if (!grupos[grupo]?.length) return;
     const nomeGrupo = nomesGrupos[grupo] || grupo.charAt(0).toUpperCase() + grupo.slice(1);
     const divGrupo = criarEl('div', 'pt-grupo');
     const tituloGrupo = criarEl('div', 'pt-grupo-titulo', nomeGrupo);
@@ -935,7 +935,7 @@ function criarItemTema(tema) {
   const desc = criarEl('div', 'pt-desc', tema.desc);
   info.append(nome, desc);
 
-  if (tema.tags && tema.tags.length) {
+  if (tema.tags?.length) {
     const tagsDiv = criarEl('div', 'pt-tags');
     tema.tags.forEach(tag => tagsDiv.appendChild(criarEl('span', 'pt-tag', tag)));
     info.appendChild(tagsDiv);
@@ -1070,7 +1070,6 @@ function imprimirTema() {
 
   // Paleta de cores (valores RGB)
   const COR_AZUL = [0, 73, 135];
-  const COR_AZUL_CLARO = [0, 196, 179];
   const COR_TEXTO = [30, 30, 30];
   const COR_TEXTO_MEDIO = [100, 100, 100];
   const COR_LINHA = [220, 225, 232];
