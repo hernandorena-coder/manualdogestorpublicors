@@ -40,7 +40,7 @@ function definirHTML(elemento, html) {
       .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '')
       .replace(/\son\w+\s*=/gi, ' data-removed=');
     temp.innerHTML = htmlLimpo;
-    while (elemento.firstChild) elemento.removeChild(elemento.firstChild);
+    while (elemento.firstChild) elemento.firstChild.remove();
     while (temp.firstChild) elemento.appendChild(temp.firstChild);
   }
 }
@@ -50,9 +50,9 @@ function definirHTML(elemento, html) {
 document.addEventListener('click', function(e) {
   const el = e.target.closest('[data-acao]');
   if (!el) return;
-  const acao = el.getAttribute('data-acao');
-  const id = el.getAttribute('data-id');
-  const versao = el.getAttribute('data-versao');
+  const acao = el.dataset.acao;
+  const id = el.dataset.id;
+  const versao = el.dataset.versao;
 
   switch(acao) {
     case 'abrirTema':       abrirTema(id); break;
@@ -67,14 +67,16 @@ document.addEventListener('click', function(e) {
     case 'marcarChecklist': marcarChecklist(el.closest('li')); break;
     case 'restaurarVersao': restaurarVersao(id, Number.parseInt(versao)); break;
     case 'filtrarPorTag':   filtrarPorTag(id, el); break;
-    case 'buscar':
+    case 'buscar': {
       const inp = document.getElementById('hero-inp');
       if (inp) buscar(inp.value);
       break;
-    case 'buscarPt':
+    }
+    case 'buscarPt': {
       const inpPt = document.getElementById('pt-inp');
       if (inpPt) filtrarTemas(inpPt.value);
       break;
+    }
     case 'voltarTopo':
       window.scrollTo({top:0, behavior:'smooth'});
       break;
