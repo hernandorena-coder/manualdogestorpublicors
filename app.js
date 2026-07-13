@@ -518,14 +518,18 @@ function montarConteudoTema(tema) {
   const lgGrid = criarEl('div', 'lg-grid');
   tema.legislacao.forEach(lei => {
     const tipoFormatado = lei.tipo.toLowerCase();
-    const classeTipo =
-      tipoFormatado === 'dec' ? 'dec' :
-      tipoFormatado === 'res' ? 'res' :
-      tipoFormatado === 'port' ? 'port' :
-      (tipoFormatado === 'in' || tipoFormatado === 'instrução normativa') ? 'in' :
-      tipoFormatado === 'circ' ? 'circ' :
-      tipoFormatado === 'os' ? 'os' :
-      (tipoFormatado === 'lc' || tipoFormatado === 'lei complementar') ? 'lc' : '';
+    const mapaTipos = {
+      dec: 'dec',
+      res: 'res',
+      port: 'port',
+      circ: 'circ',
+      os: 'os',
+      in: 'in',
+      'instrução normativa': 'in',
+      lc: 'lc',
+      'lei complementar': 'lc'
+    };
+    const classeTipo = mapaTipos[tipoFormatado] ?? '';
 
     const item = lei.link
       ? document.createElement('a')
