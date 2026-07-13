@@ -1112,15 +1112,17 @@ function imprimirTema() {
     const alturaTotal = (textoTitulo.length + textoCorpo.length) * 4.5 + 8;
     verificarEspacoY(alturaTotal);
 
-    const corFundo =
-      bloco.tipo === 'info' ? COR_FUNDO_INFO :
-      bloco.tipo === 'atencao' ? COR_FUNDO_AVISO :
-      bloco.tipo === 'aviso' ? COR_FUNDO_AMARELO : COR_FUNDO_SUCESSO;
+    let corFundo;
+    if (bloco.tipo === 'info') { corFundo = COR_FUNDO_INFO; }
+    else if (bloco.tipo === 'atencao') { corFundo = COR_FUNDO_AVISO; }
+    else if (bloco.tipo === 'aviso') { corFundo = COR_FUNDO_AMARELO; }
+    else { corFundo = COR_FUNDO_SUCESSO; }
 
-    const corTextoTipo =
-      bloco.tipo === 'info' ? COR_AZUL :
-      bloco.tipo === 'atencao' ? COR_LARANJA :
-      bloco.tipo === 'aviso' ? COR_AMARELO : COR_VERDE;
+    let corTextoTipo;
+    if (bloco.tipo === 'info') { corTextoTipo = COR_AZUL; }
+    else if (bloco.tipo === 'atencao') { corTextoTipo = COR_LARANJA; }
+    else if (bloco.tipo === 'aviso') { corTextoTipo = COR_AMARELO; }
+    else { corTextoTipo = COR_VERDE; }
 
     desenharRetangulo(MARGEM_ESQ, posY, LARGURA_CONTEUDO, alturaTotal, corFundo, 2);
 
